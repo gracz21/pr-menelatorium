@@ -1,4 +1,4 @@
-# pr-menelatorium
+# Menelatorium
 Project for Distributed Computing subject
 
 ## Plot (in Polish):
