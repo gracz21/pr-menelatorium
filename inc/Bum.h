@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "Request.h"
+#include "HelpRequest.h"
 
 class Bum {
     private:
@@ -11,6 +12,7 @@ class Bum {
         int time;
         unsigned short weight;
         std::priority_queue<Request> requests;
+        std::priority_queue<HelpRequest> helpRequests;
 
         void hangAround();
     
