@@ -4,7 +4,7 @@
 #include <queue>
 
 #include "Request.h"
-#include "Parameters"
+#include "Parameters.h"
 
 class Bum {
     private:
