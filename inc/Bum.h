@@ -4,18 +4,20 @@
 #include <queue>
 
 #include "Request.h"
+#include "Parameters"
 
 class Bum {
     private:
         int id;
         int time;
         unsigned short weight;
+        Parameters param;
         std::priority_queue<Request> requests;
 
         void hangAround();
     
     public:
-        Bum(int id, int time = 0);
+        Bum(int id, Parameters param, int time = 0);
         int getId();
         void run();
 };

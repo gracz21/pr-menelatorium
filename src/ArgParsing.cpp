@@ -22,14 +22,14 @@ int parse(Parameters &param, int argc, char * const argv[]) {
 				param.s = atoi(optarg);
 				count++;
 			break;
-			
+
 			case 'v':
 				param.report = false;
 			break;
 		}
 	}
 
-	if(count >= 3)
+	if(count == 3)
 		return 0;
 	else return -1;
 }

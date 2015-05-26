@@ -4,9 +4,10 @@
 #include "../inc/messages.h"
 #include "../inc/Request.h"
 
-Bum::Bum(int id, int time) {
+Bum::Bum(int id, Parameters param, int time) {
     this->id = id;
     this->time = time;
+    this->param = param;
 }
 
 int Bum::getId() {
