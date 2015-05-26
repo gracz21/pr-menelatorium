@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <mpi.h>
 
 #include "../inc/MPIRequest.h"
 #include "../inc/Request.h"
