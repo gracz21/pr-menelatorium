@@ -1,19 +1,15 @@
-CXX=mpicxx
-CFLAGS=-Wall -c
-
 all: menele
-
-menele: main.cpp obj/Request.o obj/Bum.o obj/MPIRequest.o obj/BumFactory.o
-	$(CXX) -Wall main.cpp obj/Request.o obj/Bum.o obj/MPIRequest.o -o menele
-
-obj/Request.o: src/Request.cpp inc/Request.h 
-	$(CXX) $(CFLAGS) src/Request.cpp -o obj/Request.o
-
-obj/Bum.o: src/Bum.cpp inc/Bum.h inc/Request.h inc/HelpRequest.h
-	$(CXX) $(CFLAGS) src/Bum.cpp -o obj/Bum.o
-
-obj/MPIRequest.o: src/MPIRequest.cpp inc/MPIRequest.h 
-	$(CXX) $(CFLAGS) src/MPIRequest.cpp -o obj/MPIRequest.o
-
-obj/BumFactory.o: src/BumFactory.cpp inc/BumFactory.h inc/Bum.h
-	$(CXX) $(CFLAGS) src/BumFactory.cpp -o obj/BumFactory.o
+menele: obj/Bum.o obj/BumFactory.o obj/main.o obj/MPIRequest.o obj/Request.o
+	mpicxx obj/Bum.o obj/BumFactory.o obj/main.o obj/MPIRequest.o obj/Request.o -Wall -o menele
+obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/Message.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h
+	mpicxx src/Bum.cpp -o $@ -Wall -c
+obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/Message.h src/../inc/HelpRequest.h src/../inc/Parameters.h
+	mpicxx src/BumFactory.cpp -o $@ -Wall -c
+obj/main.o: src/main.cpp
+	mpicxx src/main.cpp -o $@ -Wall -c
+obj/MPIRequest.o: src/MPIRequest.cpp src/../inc/MPIRequest.h src/../inc/Request.h src/../inc/Message.h
+	mpicxx src/MPIRequest.cpp -o $@ -Wall -c
+obj/Request.o: src/Request.cpp src/../inc/Request.h src/../inc/Message.h
+	mpicxx src/Request.cpp -o $@ -Wall -c
+clean:
+	rm -f obj/*
