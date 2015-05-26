@@ -4,7 +4,7 @@
 #include "../inc/messages.h"
 #include "../inc/Request.h"
 
-Bum::Bum(int id, int time) {
+Bum::Bum(int id, unsigned short weight, const Parameters& worldParameters, int time) {
     this->id = id;
     this->time = time;
 }

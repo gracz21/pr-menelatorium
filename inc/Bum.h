@@ -5,19 +5,21 @@
 
 #include "Request.h"
 #include "HelpRequest.h"
+#include "Parameters.h"
 
 class Bum {
     private:
         int id;
-        int time;
         unsigned short weight;
+        int time;
+        Parameters worldParameters;
         std::priority_queue<Request> requests;
         std::priority_queue<HelpRequest> helpRequests;
 
         void hangAround();
     
     public:
-        Bum(int id, int time = 0);
+        Bum(int id, unsigned short weight, const Parameters& worldParameters,  int time = 0);
         int getId();
         void run();
 };
