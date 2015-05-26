@@ -1,7 +1,7 @@
 all: menele
 menele: obj/Bum.o obj/BumFactory.o obj/main.o obj/MPIRequest.o obj/Request.o
 	mpicxx obj/Bum.o obj/BumFactory.o obj/main.o obj/MPIRequest.o obj/Request.o -Wall -o menele
-obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h
+obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h src/../inc/MPIRequest.h
 	mpicxx src/Bum.cpp -o $@ -Wall -c
 obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/Parameters.h
 	mpicxx src/BumFactory.cpp -o $@ -Wall -c

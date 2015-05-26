@@ -10,8 +10,8 @@ class MPIRequest {
         ~MPIRequest();
 
     public:
-        const MPI_Datatype& getType();
-        static const MPIRequest& getInstance();
+        MPI_Datatype& getType();
+        static MPIRequest& getInstance();
 };
 
 #endif

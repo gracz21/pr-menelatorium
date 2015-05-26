@@ -5,6 +5,7 @@
 #include "../inc/Bum.h"
 #include "../inc/messages.h"
 #include "../inc/Request.h"
+#include "../inc/MPIRequest.h"
 
 using namespace std;
 
@@ -43,17 +44,17 @@ void Bum::checkForIncommingMessages() {
     MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &messageAvailable, &status);
 
     if (messageAvailable) {
-        switch (status.MPI_TAG) {
-            case ENTER_REQ:
-
-                break;
-            case EXIT_NOTIFICATION:
-
-                break;
-            default:
-                break;
-        }
+        handleMessageWhenIdle();
     }
+}
+
+void Bum::handleMessageWhenIdle() {
+    Request request;
+
+    MPIRequest &mpiRequestType = MPIRequest::getInstance();
+
+    MPI_Status status;
+    MPI_Recv(&request, 1, mpiRequestType.getType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 }
 
 void Bum::goToMuseum() {

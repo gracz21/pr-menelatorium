@@ -17,6 +17,7 @@ class Bum {
         void hangAround();
         void checkForIncommingMessages();
         void goToMuseum();
+        void handleMessageWhenIdle();
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters,  int time = 0);

@@ -22,11 +22,11 @@ MPIRequest::~MPIRequest() {
     MPI_Type_free(&type);
 }
 
-const MPI_Datatype& MPIRequest::getType() {
+MPI_Datatype& MPIRequest::getType() {
     return type;
 }
 
-const MPIRequest& MPIRequest::getInstance() {
+MPIRequest& MPIRequest::getInstance() {
     static MPIRequest instance;
 
     return instance;
