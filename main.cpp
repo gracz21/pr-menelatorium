@@ -9,22 +9,7 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-	Parameters param;
-
-	int size;
-	int rank;
-
-	if(parse(param, argc, argv) == -1)
-		cout << "Za malo arg!" << endl;
-	if(param.report)
-		cout << "Gadam" << endl;
-
 	MPI_Init(&argc,&argv);
-
-	size=MPI::COMM_WORLD.Get_size();
-	rank=MPI::COMM_WORLD.Get_rank();
-
-
 
 	MPI_Finalize();
 
