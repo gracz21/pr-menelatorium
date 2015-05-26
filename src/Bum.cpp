@@ -51,10 +51,8 @@ void Bum::checkForIncommingMessages() {
 void Bum::handleMessageWhenIdle() {
     Request request;
 
-    MPIRequest &mpiRequestType = MPIRequest::getInstance();
-
     MPI_Status status;
-    MPI_Recv(&request, 1, mpiRequestType.getType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+    MPI_Recv(&request, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 }
 
 void Bum::goToMuseum() {
