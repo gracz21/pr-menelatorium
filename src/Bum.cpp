@@ -53,6 +53,11 @@ void Bum::handleMessageWhenIdle() {
 
     MPI_Status status;
     MPI_Recv(&request, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+    if (status.MPI_TAG == ENTER_REQ) {
+        Request response;
+        MPI_Send(&response, 1, MPIRequest::getInstance().getType(), request.processId, ENTER_RESP, MPI_COMM_WORLD);
+    }
 }
 
 void Bum::goToMuseum() {
