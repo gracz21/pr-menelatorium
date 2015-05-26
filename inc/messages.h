@@ -1,0 +1,10 @@
+#ifndef MESSAGES_H
+#define MESSAGES_H
+
+#define ENTER_REQ 10
+#define EXIT_NOTIFICATION 11
+#define ENTER_RESP 12
+#define EXPO_START 13
+#define EXPO_START_CONFIRMATION 14
+
+#endif
