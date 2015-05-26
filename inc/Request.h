@@ -1,7 +1,9 @@
 #ifndef REQUEST_H
 #define REQUEST_H
 
-struct Request {
+#include "Message.h"
+
+struct Request: Message {
     int processId;
     int timestamp;
 
