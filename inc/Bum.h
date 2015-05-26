@@ -11,13 +11,13 @@ class Bum {
         int id;
         unsigned short weight;
         int time;
-        Parameters worldParameters;
+        const Parameters *worldParameters;
         std::priority_queue<Request> requests;
 
         void hangAround();
     
     public:
-        Bum(int id, unsigned short weight, const Parameters& worldParameters,  int time = 0);
+        Bum(int id, unsigned short weight, const Parameters *worldParameters,  int time = 0);
         int getId();
         void run();
 };
