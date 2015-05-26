@@ -5,13 +5,14 @@
 #include "../inc/Request.h"
 
 MPIRequest::MPIRequest() {
-    const int numberOfProperties = 2;
-    int blockLengths[2] = {1,1};
-    MPI_Datatype typesOfProperties[2] = {MPI_INT, MPI_INT};
+    const int numberOfProperties = 3;
+    int blockLengths[3] = {1, 1, 1};
+    MPI_Datatype typesOfProperties[3] = {MPI_INT, MPI_INT, MPI_INT};
 
-    MPI_Aint offsets[2];
+    MPI_Aint offsets[3];
     offsets[0] = offsetof(Request, processId);
     offsets[1] = offsetof(Request, timestamp);
+    offsets[2] = offsetof(Request, currentTime);
 
     MPI_Type_create_struct(numberOfProperties, blockLengths, offsets, typesOfProperties, &type);
     MPI_Type_commit(&type);
