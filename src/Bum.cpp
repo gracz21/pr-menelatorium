@@ -1,22 +1,22 @@
 #include <mpi.h>
 
-#include "../inc/Menel.h"
+#include "../inc/Bum.h"
 #include "../inc/messages.h"
 #include "../inc/Request.h"
 
-Menel::Menel(int id, int time) {
+Bum::Bum(int id, int time) {
     this->id = id;
     this->time = time;
 }
 
-int Menel::getId() {
+int Bum::getId() {
     return id;
 }
 
-void Menel::run() {
+void Bum::run() {
     hangAround();
 }
 
-void Menel::hangAround() {
+void Bum::hangAround() {
 
 }

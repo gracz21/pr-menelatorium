@@ -3,17 +3,17 @@ CFLAGS=-Wall -c
 
 all: menele
 
-menele: main.cpp obj/Request.o obj/Menel.o obj/MPIRequest.o obj/MenelFactory.o
-	$(CXX) -Wall main.cpp obj/Request.o obj/Menel.o obj/MPIRequest.o -o menele
+menele: main.cpp obj/Request.o obj/Bum.o obj/MPIRequest.o obj/BumFactory.o
+	$(CXX) -Wall main.cpp obj/Request.o obj/Bum.o obj/MPIRequest.o -o menele
 
-obj/Request.o: inc/Request.h src/Request.cpp
+obj/Request.o: src/Request.cpp inc/Request.h 
 	$(CXX) $(CFLAGS) src/Request.cpp -o obj/Request.o
 
-obj/Menel.o: inc/Menel.h src/Menel.cpp inc/Request.h
-	$(CXX) $(CFLAGS) src/Menel.cpp -o obj/Menel.o
+obj/Bum.o: src/Bum.cpp inc/Bum.h inc/Request.h
+	$(CXX) $(CFLAGS) src/Bum.cpp -o obj/Bum.o
 
-obj/MPIRequest.o: inc/MPIRequest.h src/MPIRequest.cpp
+obj/MPIRequest.o: src/MPIRequest.cpp inc/MPIRequest.h 
 	$(CXX) $(CFLAGS) src/MPIRequest.cpp -o obj/MPIRequest.o
 
-obj/MenelFactory.o: inc/MenelFactory.h inc/Menel.h
-	$(CXX) $(CFLAGS) src/MenelFactory.cpp -o obj/MenelFactory.o
+obj/BumFactory.o: src/BumFactory.cpp inc/BumFactory.h inc/Bum.h
+	$(CXX) $(CFLAGS) src/BumFactory.cpp -o obj/BumFactory.o
