@@ -1,9 +1,9 @@
 all: menele
 menele: obj/Bum.o obj/BumFactory.o obj/HelpRequest.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/Request.o
 	mpicxx obj/Bum.o obj/BumFactory.o obj/HelpRequest.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/Request.o -Wall -o menele
-obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h
+obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h
 	mpicxx src/Bum.cpp -o $@ -Wall -c
-obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/Parameters.h
+obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h
 	mpicxx src/BumFactory.cpp -o $@ -Wall -c
 obj/HelpRequest.o: src/HelpRequest.cpp src/../inc/HelpRequest.h
 	mpicxx src/HelpRequest.cpp -o $@ -Wall -c

@@ -4,6 +4,7 @@
 #include <queue>
 
 #include "Request.h"
+#include "HelpRequest.h"
 #include "Parameters.h"
 
 class Bum {
@@ -13,6 +14,7 @@ class Bum {
         int time;
         const Parameters *worldParameters;
         std::priority_queue<Request> requests;
+        std::priority_queue<HelpRequest> helpRequests;
 
         void hangAround();
         void checkForIncommingMessages();
