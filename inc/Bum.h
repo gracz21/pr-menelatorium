@@ -1,7 +1,7 @@
 #ifndef BUM_H
 #define BUM_H
 
-#include <queue>
+#include <set>
 
 #include "Request.h"
 #include "HelpRequest.h"
@@ -13,8 +13,8 @@ class Bum {
         unsigned short weight;
         int time;
         const Parameters *worldParameters;
-        std::priority_queue<Request> requests;
-        std::priority_queue<HelpRequest> helpRequests;
+        std::set<Request> requests;
+        std::set<HelpRequest> helpRequests;
 
         void hangAround();
         void checkForIncommingMessages();
