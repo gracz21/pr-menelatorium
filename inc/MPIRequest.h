@@ -3,13 +3,13 @@
 
 #include <mpi.h>
 
-class MPIRequest {
+#include "MPICustomType.h"
+
+class MPIRequest: public MPICustomType {
     private:
-        MPI_Datatype type;
         MPIRequest();
 
     public:
-        MPI_Datatype& getType();
         static MPIRequest& getInstance();
 };
 
