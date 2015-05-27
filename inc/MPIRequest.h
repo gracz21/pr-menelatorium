@@ -7,7 +7,6 @@ class MPIRequest {
     private:
         MPI_Datatype type;
         MPIRequest();
-        ~MPIRequest();
 
     public:
         MPI_Datatype& getType();

@@ -18,10 +18,6 @@ MPIRequest::MPIRequest() {
     MPI_Type_commit(&type);
 }
 
-MPIRequest::~MPIRequest() {
-    MPI_Type_free(&type);
-}
-
 MPI_Datatype& MPIRequest::getType() {
     return type;
 }
