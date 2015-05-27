@@ -20,6 +20,9 @@ class Bum {
         void checkForIncommingMessages();
         void goToMuseum();
         void handleMessageWhenIdle();
+        void participateInExposition();
+        void callForHelp();
+        void leaveMuseum();
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters,  int time = 0);

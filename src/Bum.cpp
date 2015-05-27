@@ -23,6 +23,7 @@ int Bum::getId() {
 void Bum::run() {
     hangAround();
     goToMuseum();
+    participateInExposition();
 }
 
 void Bum::hangAround() {
@@ -65,5 +66,26 @@ void Bum::handleMessageWhenIdle() {
 }
 
 void Bum::goToMuseum() {
+
+}
+
+void Bum::participateInExposition() {
+    cout << "Proces: " << id << ", czas: " << time << " - na wystawie" << endl;
+    time++;
+
+    bool gotDrunk = ((rand() % 10) <= 4);
+
+    if (gotDrunk) {
+        callForHelp(); 
+    }
+
+    leaveMuseum();
+}
+
+void Bum::callForHelp() {
+
+}
+
+void Bum::leaveMuseum() {
 
 }
