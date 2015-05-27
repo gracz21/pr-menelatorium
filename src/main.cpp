@@ -1,39 +1,27 @@
 #include <mpi.h>
-#include <queue>
+#include <set>
 #include <iostream>
 
-#include "../inc/Request.h"
+#include "../inc/HelpRequest.h"
 #include "../inc/MPIRequest.h"
 
 using namespace std;
 
 int main(int argc, char** argv) {
-	int size,rank;
-	MPI_Init(&argc,&argv);
+    set<HelpRequest> s;
+    
+    s.insert(HelpRequest(10, 20, 2, 1));
+    s.insert(HelpRequest(30, 10, 3, 1));
+    s.insert(HelpRequest(5, 30, 1, 1));
+    s.insert(HelpRequest(1, 1, 1, 1));
+    s.insert(HelpRequest(1, 1, 1, 1));
+    s.insert(HelpRequest(1, 1, 1, 1));
 
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
-    if (rank == 0) {
-        cout << rank << endl;
-        Request msg;
-        msg.processId = 0;
-        msg.timestamp = 10;
-        msg.currentTime = 11;
-
-        MPI_Send(&msg, 1, MPIRequest::getInstance().getType(), 1, 10, MPI_COMM_WORLD);
-    } else {
-        cout << rank << endl;
-        MPI_Status status;
-        Request msg;
-
-        MPI_Recv(&msg, 1, MPIRequest::getInstance().getType(), 0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
-        cout << msg.processId << endl << msg.timestamp << endl << msg.currentTime << endl;
+    set<HelpRequest>::iterator it;
+    
+    for (it = s.begin(); it != s.end(); it++) {
+        cout << (*it).processId << " " << (*it).timestamp << endl;
     }
-
-    MPI_Type_free(&(MPIRequest::getInstance().getType()));
-	MPI_Finalize();
 
     return 0;
 }

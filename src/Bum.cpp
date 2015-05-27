@@ -66,7 +66,7 @@ void Bum::handleMessageWhenIdle() {
 }
 
 void Bum::goToMuseum() {
-
+    // TODO: first critical section
 }
 
 void Bum::participateInExposition() {
@@ -87,5 +87,4 @@ void Bum::callForHelp() {
 }
 
 void Bum::leaveMuseum() {
-
 }
