@@ -106,6 +106,8 @@ void Bum::callForHelp() {
             MPI_Isend(&helpRequests[helpRequestsIterator], 1, MPIRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
                       MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
+
+            helpRequestsIterator++;
         }
     }
 }
