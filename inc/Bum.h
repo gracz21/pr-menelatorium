@@ -24,6 +24,7 @@ class Bum {
         void handleMessageWhenIdle();
         void participateInExposition();
         void callForHelp();
+        void waitForHelp();
         void leaveMuseum();
     
     public:

@@ -83,6 +83,7 @@ void Bum::participateInExposition() {
 
     if (gotDrunk) {
         callForHelp(); 
+        waitForHelp();
     }
 
     leaveMuseum();
@@ -110,6 +111,10 @@ void Bum::callForHelp() {
             helpRequestsIterator++;
         }
     }
+}
+
+void Bum::waitForHelp() {
+    
 }
 
 void Bum::leaveMuseum() {
