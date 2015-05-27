@@ -114,8 +114,29 @@ void Bum::callForHelp() {
 }
 
 void Bum::waitForHelp() {
+    int remainingResponsesNumber = worldParameters->s - 1;
     
+    while (remainingResponsesNumber > 0) {
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+        switch (status.MPI_TAG) {
+            case ENTER_REQ:
+                break;
+            case EXIT_NOTIFICATION:
+                break;
+            case HELP_REQ:
+                break;
+            case HELP_RESP:
+                remainingResponsesNumber--;
+                break;
+            default:
+                throw "Unexpected message";
+                break;
+        }
+    }
 }
 
 void Bum::leaveMuseum() {
+     
 }
