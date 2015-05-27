@@ -14,6 +14,12 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int t
     this->weight = weight;
     this->worldParameters = worldParameters;
     this->time = time;
+
+    museumAttendanceList = new int[worldParameters->s];
+}
+
+Bum::~Bum() {
+    delete [] museumAttendanceList;
 }
 
 int Bum::getId() {
@@ -83,7 +89,25 @@ void Bum::participateInExposition() {
 }
 
 void Bum::callForHelp() {
+    int timeWhenGotDrunk = time;
+    HelpRequest helpRequests[worldParameters->s - 1];
+    int helpRequestsIterator = 0;
+    
+    for (int i = 0; i < worldParameters->s; i++) {
+        if (museumAttendanceList[i] != id) {
+            time++;
 
+            helpRequests[helpRequestsIterator].processId = id;
+            helpRequests[helpRequestsIterator].timestamp = timeWhenGotDrunk;;
+            helpRequests[helpRequestsIterator].currentTime = time;
+            helpRequests[helpRequestsIterator].weight = weight;
+
+            MPI_Request status;
+            MPI_Isend(&helpRequests[helpRequestsIterator], 1, MPIRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
+                      MPI_COMM_WORLD, &status);
+            MPI_Request_free(&status);
+        }
+    }
 }
 
 void Bum::leaveMuseum() {

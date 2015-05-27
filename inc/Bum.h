@@ -13,9 +13,11 @@ class Bum {
         unsigned short weight;
         int time;
         const Parameters *worldParameters;
-        std::set<Request> requests;
+        std::set<Request> enterRequests;
         std::set<HelpRequest> helpRequests;
+        int *museumAttendanceList;
 
+        ~Bum();
         void hangAround();
         void checkForIncommingMessages();
         void goToMuseum();
