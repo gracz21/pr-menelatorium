@@ -166,7 +166,7 @@ void Bum::waitForHelp() {
 }
 
 void Bum::insertHelpRequest(HelpRequest &helpRequest) {
-    if (helpRequestsFilter.find(helpRequest) != helpRequestsFilter.end()) {
+    if (helpRequestsFilter.find(helpRequest) == helpRequestsFilter.end()) {
         helpRequests.insert(helpRequest);
     }
 }
