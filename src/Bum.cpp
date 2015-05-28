@@ -143,6 +143,13 @@ void Bum::waitForHelp() {
             MPI_Send(myHelpRequest, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
 
         } else if (status.MPI_TAG == HELP_RESP) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            if (helpRequest.processId != -1) {
+                helpRequests.insert(helpRequest);
+            }
+
             remainingResponsesNumber--;
         } else {
             throw "Unexpected message";
