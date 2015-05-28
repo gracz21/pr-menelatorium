@@ -30,7 +30,10 @@ class Bum {
         void emptyDelayedEnterRequests();
         void hangAround();
         void checkForIncommingMessages();
+
         void goToMuseum();
+        void sendEnterRequests();
+
         void handleMessageWhenIdle(MPI_Status &status);
         void participateInExposition();
         void callForHelp();

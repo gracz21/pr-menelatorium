@@ -105,7 +105,29 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
 }
 
 void Bum::goToMuseum() {
-    // TODO: first critical section
+    sendEnterRequests();
+}
+
+void Bum::sendEnterRequests() {
+    Request enterRequests[worldParameters->m - 1];
+    int requestsIterator = 0;
+    int timestamp = time;
+
+    for (unsigned int i = 0; i < worldParameters->m; i++) {
+        if (bumsIds[i] != id) {
+            time++;
+
+            enterRequests[requestsIterator].processId = id;
+            enterRequests[requestsIterator].timestamp = timestamp;
+            enterRequests[requestsIterator].currentTime = time;
+
+            MPI_Request status;
+            MPI_Isend(&enterRequests[requestsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], ENTER_REQ, MPI_COMM_WORLD, &status);
+            MPI_Request_free(&status);
+
+            requestsIterator++;
+        }
+    }
 }
 
 void Bum::participateInExposition() {
