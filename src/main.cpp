@@ -10,16 +10,16 @@ using namespace std;
 int main(int argc, char** argv) {
     set<HelpRequest> s;
     
-    s.insert(HelpRequest(10, 20, 2, 1));
-    s.insert(HelpRequest(30, 10, 3, 1));
-    s.insert(HelpRequest(5, 30, 1, 1));
-    s.insert(HelpRequest(1, 1, 1, 1));
-    s.insert(HelpRequest(1, 1, 1, 1));
-    s.insert(HelpRequest(1, 1, 1, 1));
+    s.insert(HelpRequest(10, 20, 2, 2));
+    s.insert(HelpRequest(10, 20, 3, 1));
+    s.insert(HelpRequest(10, 30, 3, 1));
+    s.insert(HelpRequest(20, 20, 3, 1));
+    s.insert(HelpRequest(10, 20, 3, 1));
 
-    const HelpRequest *ptr = &(*s.begin());
-
-    cout << ptr->processId << endl;
+    set<HelpRequest>::iterator it;
+    for (it = s.begin(); it != s.end(); it++) {
+        cout << (*it).processId << endl;
+    }
 
     return 0;
 }

@@ -30,6 +30,7 @@ class Bum {
         void participateInExposition();
         void callForHelp();
         void waitForHelp();
+        void insertHelpRequest(HelpRequest &helpRequest);
         void leaveMuseum();
     
     public:

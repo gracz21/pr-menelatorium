@@ -140,7 +140,7 @@ void Bum::waitForHelp() {
             HelpRequest helpRequest;
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-            helpRequests.insert(helpRequest);
+            insertHelpRequest(helpRequest);
             MPI_Send(myHelpRequest, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
 
         } else if (status.MPI_TAG == HELP_RESP) {
@@ -148,16 +148,26 @@ void Bum::waitForHelp() {
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
             if (helpRequest.processId != -1) {
-                helpRequests.insert(helpRequest);
+                insertHelpRequest(helpRequest);
             }
 
             remainingResponsesNumber--;
         } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
+            helpRequestsFilter.insert(helpRequest);
+            helpRequests.erase(helpRequest);
              
         } else {
             throw "Unexpected message";
         }
+    }
+}
+
+void Bum::insertHelpRequest(HelpRequest &helpRequest) {
+    if (helpRequestsFilter.find(helpRequest) != helpRequestsFilter.end()) {
+        helpRequests.insert(helpRequest);
     }
 }
 
