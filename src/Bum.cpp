@@ -81,8 +81,8 @@ void Bum::participateInExposition() {
 
     bool gotDrunk = ((rand() % 10) <= 4);
 
-    helpRequests.clear();
     if (gotDrunk) {
+        helpRequests.clear();
         callForHelp(); 
         waitForHelp();
     }
@@ -92,20 +92,20 @@ void Bum::participateInExposition() {
 
 void Bum::callForHelp() {
     int timeWhenGotDrunk = time;
-    HelpRequest helpRequests[worldParameters->s - 1];
+    HelpRequest helpRequestBuffers[worldParameters->s - 1];
     int helpRequestsIterator = 0;
     
     for (int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             time++;
 
-            helpRequests[helpRequestsIterator].processId = id;
-            helpRequests[helpRequestsIterator].timestamp = timeWhenGotDrunk;;
-            helpRequests[helpRequestsIterator].currentTime = time;
-            helpRequests[helpRequestsIterator].weight = weight;
+            helpRequestBuffers[helpRequestsIterator].processId = id;
+            helpRequestBuffers[helpRequestsIterator].timestamp = timeWhenGotDrunk;;
+            helpRequestBuffers[helpRequestsIterator].currentTime = time;
+            helpRequestBuffers[helpRequestsIterator].weight = weight;
 
             MPI_Request status;
-            MPI_Isend(&helpRequests[helpRequestsIterator], 1, MPIRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
+            MPI_Isend(&helpRequestBuffers[helpRequestsIterator], 1, MPIRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
                       MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
 
