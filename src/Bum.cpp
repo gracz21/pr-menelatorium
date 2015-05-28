@@ -121,31 +121,38 @@ void Bum::callForHelp() {
 
 void Bum::waitForHelp() {
     int remainingResponsesNumber = worldParameters->s - 1;
+    bool served = false;
     
-    while (remainingResponsesNumber > 0) {
+    while (remainingResponsesNumber > 0 && !served) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
         if (status.MPI_TAG == ENTER_REQ) {
             Request enterRequest;
             MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
 
             delayedEnterRequests.push_back(enterRequest);
 
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
             Request enterRequest;
             MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
 
         } else if (status.MPI_TAG == HELP_REQ) {
             HelpRequest helpRequest;
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
 
             insertHelpRequest(helpRequest);
-            MPI_Send(myHelpRequest, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
+            HelpRequest response = *myHelpRequest;
+            response.currentTime = ++time;
+            MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
 
         } else if (status.MPI_TAG == HELP_RESP) {
             HelpRequest helpRequest;
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
 
             if (helpRequest.processId != -1) {
                 insertHelpRequest(helpRequest);
@@ -155,6 +162,7 @@ void Bum::waitForHelp() {
         } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
             HelpRequest helpRequest;
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
 
             helpRequestsFilter.insert(helpRequest);
             helpRequests.erase(helpRequest);
