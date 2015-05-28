@@ -120,19 +120,22 @@ void Bum::waitForHelp() {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        switch (status.MPI_TAG) {
-            case ENTER_REQ:
-                break;
-            case EXIT_NOTIFICATION:
-                break;
-            case HELP_REQ:
-                break;
-            case HELP_RESP:
-                remainingResponsesNumber--;
-                break;
-            default:
-                throw "Unexpected message";
-                break;
+        if (status.MPI_TAG == ENTER_REQ) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            delayedEnterRequests.push_back(enterRequest);
+
+        } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+        } else if (status.MPI_TAG == HELP_REQ) {
+
+        } else if (status.MPI_TAG == HELP_RESP) {
+            remainingResponsesNumber--;
+        } else {
+            throw "Unexpected message";
         }
     }
 }

@@ -2,6 +2,7 @@
 #define BUM_H
 
 #include <set>
+#include <list>
 
 #include "Request.h"
 #include "HelpRequest.h"
@@ -15,6 +16,8 @@ class Bum {
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
         std::set<HelpRequest> helpRequests;
+        std::list<Request> delayedEnterRequests;
+
         int *museumAttendanceList;
 
         ~Bum();
