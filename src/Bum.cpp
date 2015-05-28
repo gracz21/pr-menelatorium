@@ -10,11 +10,12 @@
 
 using namespace std;
 
-Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int time) {
+Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *bumsIds, int time) {
     this->id = id;
     this->weight = weight;
     this->worldParameters = worldParameters;
     this->time = time;
+    this->bumsIds = bumsIds;
 
     museumAttendanceList = new int[worldParameters->s];
 }
@@ -224,5 +225,35 @@ void Bum::insertHelpRequest(HelpRequest &helpRequest) {
 }
 
 void Bum::leaveMuseum() {
-     
+    if (museumAttendanceList[worldParameters->s - 1] == id) {
+        waitForOthersToExit();
+    }
+
+    notifyAboutExit();
+}
+
+void Bum::notifyAboutExit() {
+    Request notifications[worldParameters->m - 1];
+    int notificationsIterator = 0;
+
+    for (int i = 0; i < worldParameters->m; i++) {
+        if (bumsIds[i] != id) {
+            time++;
+
+            notifications[notificationsIterator].processId = id;
+            notifications[notificationsIterator].timestamp = myEnterRequest->timestamp;
+            notifications[notificationsIterator].currentTime = time;
+
+            MPI_Request status;
+            MPI_Isend(&notifications[notificationsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], 
+                      EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
+            MPI_Request_free(&status);
+
+            notificationsIterator++;
+        }
+    }
+}
+
+void Bum::waitForOthersToExit() {
+
 }

@@ -20,7 +20,9 @@ class Bum {
         std::list<Request> delayedEnterRequests;
 
         const HelpRequest *myHelpRequest;
+        const Request *myEnterRequest;
         int *museumAttendanceList;
+        int *bumsIds;
 
         ~Bum();
         void hangAround();
@@ -34,9 +36,11 @@ class Bum {
         void releaseNurses();
         void insertHelpRequest(HelpRequest &helpRequest);
         void leaveMuseum();
+        void notifyAboutExit();
+        void waitForOthersToExit();
     
     public:
-        Bum(int id, unsigned short weight, const Parameters *worldParameters,  int time = 0);
+        Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);
         int getId();
         void run();
 };
