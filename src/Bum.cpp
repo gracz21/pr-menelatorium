@@ -81,6 +81,7 @@ void Bum::participateInExposition() {
 
     bool gotDrunk = ((rand() % 10) <= 4);
 
+    helpRequests.clear();
     if (gotDrunk) {
         callForHelp(); 
         waitForHelp();
