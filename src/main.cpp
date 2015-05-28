@@ -17,11 +17,9 @@ int main(int argc, char** argv) {
     s.insert(HelpRequest(1, 1, 1, 1));
     s.insert(HelpRequest(1, 1, 1, 1));
 
-    set<HelpRequest>::iterator it;
-    
-    for (it = s.begin(); it != s.end(); it++) {
-        cout << (*it).processId << " " << (*it).timestamp << endl;
-    }
+    const HelpRequest *ptr = &(*s.begin());
+
+    cout << ptr->processId << endl;
 
     return 0;
 }

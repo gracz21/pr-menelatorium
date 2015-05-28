@@ -18,6 +18,7 @@ class Bum {
         std::set<HelpRequest> helpRequests;
         std::list<Request> delayedEnterRequests;
 
+        const HelpRequest *myHelpRequest;
         int *museumAttendanceList;
 
         ~Bum();

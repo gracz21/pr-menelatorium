@@ -6,6 +6,7 @@
 #include "../inc/messages.h"
 #include "../inc/Request.h"
 #include "../inc/MPIRequest.h"
+#include "../inc/MPIHelpRequest.h"
 
 using namespace std;
 
@@ -92,6 +93,7 @@ void Bum::participateInExposition() {
 void Bum::callForHelp() {
     helpRequests.clear();
     helpRequests.insert(HelpRequest(id, time, time, weight));
+    myHelpRequest = &(*helpRequests.begin());
 
     int timeWhenGotDrunk = time;
     HelpRequest helpRequestBuffers[worldParameters->s - 1];
@@ -134,6 +136,10 @@ void Bum::waitForHelp() {
             MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         } else if (status.MPI_TAG == HELP_REQ) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            helpRequests.insert(helpRequest);
 
 
         } else if (status.MPI_TAG == HELP_RESP) {
