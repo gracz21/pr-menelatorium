@@ -88,6 +88,7 @@ void Bum::participateInExposition() {
         waitForHelp();
     }
 
+    exitNotifications.clear();
     leaveMuseum();
 }
 
@@ -101,7 +102,7 @@ void Bum::callForHelp() {
     HelpRequest helpRequestBuffers[worldParameters->s - 1];
     int helpRequestsIterator = 0;
 
-    for (int i = 0; i < worldParameters->s; i++) {
+    for (unsigned int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             time++;
 
@@ -121,7 +122,7 @@ void Bum::callForHelp() {
 }
 
 void Bum::waitForHelp() {
-    int remainingResponsesNumber = worldParameters->s - 1;
+    unsigned int remainingResponsesNumber = worldParameters->s - 1;
     bool served = false;
     
     while (!served) {
@@ -136,9 +137,13 @@ void Bum::waitForHelp() {
             delayedEnterRequests.push_back(enterRequest);
 
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
-            Request enterRequest;
-            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+            Request exitNotification;
+            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+            if (id == museumAttendanceList[worldParameters->s - 1]) {
+                exitNotifications.push_back(exitNotification);
+            }
 
         } else if (status.MPI_TAG == HELP_REQ) {
             HelpRequest helpRequest;
@@ -180,7 +185,7 @@ void Bum::waitForHelp() {
 }
 
 bool Bum::tryToGetHelp() {
-    int sumOfBumsWeights = 0;
+    unsigned int sumOfBumsWeights = 0;
     bool myRequestPositionFound = false;
     set<HelpRequest>::iterator it = helpRequests.begin();
 
@@ -199,7 +204,7 @@ void Bum::releaseNurses() {
     HelpRequest notifications[worldParameters->s - 1];
     int notificationsIterator = 0;
 
-    for (int i = 0; i < worldParameters->s; i++) {
+    for (unsigned int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             time++;
 
@@ -236,7 +241,7 @@ void Bum::notifyAboutExit() {
     Request notifications[worldParameters->m - 1];
     int notificationsIterator = 0;
 
-    for (int i = 0; i < worldParameters->m; i++) {
+    for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             time++;
 
@@ -255,5 +260,41 @@ void Bum::notifyAboutExit() {
 }
 
 void Bum::waitForOthersToExit() {
+    bool canExit = false;
+    
+    while (!canExit) {
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
+        if (status.MPI_TAG == ENTER_REQ) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+
+            delayedEnterRequests.push_back(enterRequest);
+
+        } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
+            Request exitNotification;
+            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+            exitNotifications.push_back(exitNotification);
+
+        } else if (status.MPI_TAG == HELP_REQ) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+
+            HelpRequest response(-1, -1, ++time, -1);
+            MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
+
+        } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+        } else {
+            throw "Unexpected message";
+        }
+        canExit = (exitNotifications.size() == (worldParameters->m - 1));
+    }
 }

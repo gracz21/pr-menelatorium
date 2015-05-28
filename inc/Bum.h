@@ -18,6 +18,7 @@ class Bum {
         std::set<HelpRequest> helpRequests;
         std::set<HelpRequest> helpRequestsFilter;
         std::list<Request> delayedEnterRequests;
+        std::list<Request> exitNotifications;
 
         const HelpRequest *myHelpRequest;
         const Request *myEnterRequest;
