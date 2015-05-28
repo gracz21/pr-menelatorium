@@ -110,7 +110,7 @@ void Bum::callForHelp() {
             helpRequestBuffers[helpRequestsIterator].weight = weight;
 
             MPI_Request status;
-            MPI_Isend(&helpRequestBuffers[helpRequestsIterator], 1, MPIRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
+            MPI_Isend(&helpRequestBuffers[helpRequestsIterator], 1, MPIHelpRequest::getInstance().getType(), museumAttendanceList[i], HELP_REQ, 
                       MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
 
@@ -123,7 +123,7 @@ void Bum::waitForHelp() {
     int remainingResponsesNumber = worldParameters->s - 1;
     bool served = false;
     
-    while (remainingResponsesNumber > 0 && !served) {
+    while (!served) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
@@ -159,6 +159,7 @@ void Bum::waitForHelp() {
             }
 
             remainingResponsesNumber--;
+
         } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
             HelpRequest helpRequest;
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -166,9 +167,52 @@ void Bum::waitForHelp() {
 
             helpRequestsFilter.insert(helpRequest);
             helpRequests.erase(helpRequest);
-             
         } else {
             throw "Unexpected message";
+        }
+
+        if (remainingResponsesNumber == 0 && (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION || status.MPI_TAG == HELP_RESP)) {
+            served = tryToGetHelp(); 
+        }
+    }
+    releaseNurses();
+}
+
+bool Bum::tryToGetHelp() {
+    int sumOfBumsWeights = 0;
+    bool myRequestPositionFound = false;
+    set<HelpRequest>::iterator it = helpRequests.begin();
+
+    while (!myRequestPositionFound) {
+        sumOfBumsWeights += (*it).weight;
+        myRequestPositionFound = ((*it).processId == id);
+
+        it++;
+    }
+
+    time++;
+    return sumOfBumsWeights <= worldParameters->p;
+}
+
+void Bum::releaseNurses() {
+    HelpRequest notifications[worldParameters->s - 1];
+    int notificationsIterator = 0;
+
+    for (int i = 0; i < worldParameters->s; i++) {
+        if (museumAttendanceList[i] != id) {
+            time++;
+
+            notifications[notificationsIterator].processId = id;
+            notifications[notificationsIterator].timestamp = myHelpRequest->timestamp;
+            notifications[notificationsIterator].currentTime = time;
+            notifications[notificationsIterator].weight = weight;
+
+            MPI_Request status;
+            MPI_Isend(&notifications[notificationsIterator], 1, MPIHelpRequest::getInstance().getType(), museumAttendanceList[i], 
+                      NURSE_RELEASE_NOTIFICATION, MPI_COMM_WORLD, &status);
+            MPI_Request_free(&status);
+
+            notificationsIterator++;
         }
     }
 }
