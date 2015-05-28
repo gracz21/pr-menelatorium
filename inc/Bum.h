@@ -3,6 +3,7 @@
 
 #include <set>
 #include <list>
+#include <mpi.h>
 
 #include "Request.h"
 #include "HelpRequest.h"
@@ -29,7 +30,7 @@ class Bum {
         void hangAround();
         void checkForIncommingMessages();
         void goToMuseum();
-        void handleMessageWhenIdle();
+        void handleMessageWhenIdle(MPI_Status &status);
         void participateInExposition();
         void callForHelp();
         void waitForHelp();

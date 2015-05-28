@@ -53,23 +53,40 @@ void Bum::checkForIncommingMessages() {
     MPI_Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &messageAvailable, &status);
 
     if (messageAvailable) {
-        handleMessageWhenIdle();
+        handleMessageWhenIdle(status);
     }
 }
 
-void Bum::handleMessageWhenIdle() {
-    Request request;
-
-    MPI_Status status;
-    MPI_Recv(&request, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
-    time = (time > request.currentTime) ? time : request.currentTime;
-    time++;
-
+void Bum::handleMessageWhenIdle(MPI_Status &status) {
     if (status.MPI_TAG == ENTER_REQ) {
+        Request enterRequest;
+        MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+
         time++;
         Request response(-1, -1, time);
-        MPI_Send(&response, 1, MPIRequest::getInstance().getType(), request.processId, ENTER_RESP, MPI_COMM_WORLD);
+        MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
+
+    } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
+        Request exitNotification;
+        MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+    } else if (status.MPI_TAG == HELP_REQ) {
+        HelpRequest helpRequest;
+        MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+
+        HelpRequest response(-1, -1, ++time, -1);
+        MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
+
+    } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
+        HelpRequest helpRequest;
+        MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+
+    } else {
+        throw "Unexpected message";
     }
 }
 
