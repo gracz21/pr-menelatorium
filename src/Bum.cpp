@@ -92,6 +92,7 @@ void Bum::participateInExposition() {
 
 void Bum::callForHelp() {
     helpRequests.clear();
+    helpRequestsFilter.clear();
     helpRequests.insert(HelpRequest(id, time, time, weight));
     myHelpRequest = &(*helpRequests.begin());
 
@@ -151,6 +152,9 @@ void Bum::waitForHelp() {
             }
 
             remainingResponsesNumber--;
+        } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
+
+             
         } else {
             throw "Unexpected message";
         }

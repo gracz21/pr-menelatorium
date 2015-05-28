@@ -16,6 +16,7 @@ class Bum {
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
         std::set<HelpRequest> helpRequests;
+        std::set<HelpRequest> helpRequestsFilter;
         std::list<Request> delayedEnterRequests;
 
         const HelpRequest *myHelpRequest;
