@@ -27,6 +27,7 @@ class Bum {
         int *bumsIds;
 
         ~Bum();
+        void emptyDelayedEnterRequests();
         void hangAround();
         void checkForIncommingMessages();
         void goToMuseum();
