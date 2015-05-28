@@ -82,7 +82,6 @@ void Bum::participateInExposition() {
     bool gotDrunk = ((rand() % 10) <= 4);
 
     if (gotDrunk) {
-        helpRequests.clear();
         callForHelp(); 
         waitForHelp();
     }
@@ -91,10 +90,13 @@ void Bum::participateInExposition() {
 }
 
 void Bum::callForHelp() {
+    helpRequests.clear();
+    helpRequests.insert(HelpRequest(id, time, time, weight));
+
     int timeWhenGotDrunk = time;
     HelpRequest helpRequestBuffers[worldParameters->s - 1];
     int helpRequestsIterator = 0;
-    
+
     for (int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             time++;
@@ -132,6 +134,7 @@ void Bum::waitForHelp() {
             MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         } else if (status.MPI_TAG == HELP_REQ) {
+
 
         } else if (status.MPI_TAG == HELP_RESP) {
             remainingResponsesNumber--;
