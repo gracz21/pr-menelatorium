@@ -9,7 +9,7 @@ obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h sr
 	mpicxx src/BumFactory.cpp -o $@ -Wall -c
 obj/HelpRequest.o: src/HelpRequest.cpp src/../inc/HelpRequest.h
 	mpicxx src/HelpRequest.cpp -o $@ -Wall -c
-obj/main.o: src/main.cpp src/../inc/HelpRequest.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h
+obj/main.o: src/main.cpp src/../inc/HelpRequest.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/Parameters.h
 	mpicxx src/main.cpp -o $@ -Wall -c
 obj/MPICustomType.o: src/MPICustomType.cpp src/../inc/MPICustomType.h
 	mpicxx src/MPICustomType.cpp -o $@ -Wall -c

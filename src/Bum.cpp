@@ -1,6 +1,7 @@
 #include <mpi.h>
 #include <iostream>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "../inc/Bum.h"
 #include "../inc/messages.h"
@@ -29,12 +30,10 @@ int Bum::getId() {
 }
 
 void Bum::run() {
-    while (true) {
-        emptyDelayedEnterRequests();
-        hangAround();
-        goToMuseum();
-        participateInExposition();
-    }
+    emptyDelayedEnterRequests();
+    hangAround();
+    goToMuseum();
+    participateInExposition();
 }
 
 void Bum::emptyDelayedEnterRequests() {
@@ -105,8 +104,10 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
 }
 
 void Bum::goToMuseum() {
+    cout << "Proces: " << id << ", czas: " << time << " chce wejść do muzeum" << endl;
     sendEnterRequests();
     waitForEnterResponses();
+    waitForExpositionStart();
 }
 
 void Bum::sendEnterRequests() {
@@ -204,6 +205,11 @@ bool Bum::tryToEnterMuseum() {
     }
 
     return myPosition <= (worldParameters->s - 1);
+}
+
+void Bum::waitForExpositionStart() {
+    cout << "Waiting" << endl;
+    sleep(100000000);
 }
 
 void Bum::participateInExposition() {

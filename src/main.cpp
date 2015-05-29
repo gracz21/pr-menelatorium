@@ -5,19 +5,10 @@
 
 #include "../inc/HelpRequest.h"
 #include "../inc/MPIRequest.h"
+#include "../inc/Bum.h"
+#include "../inc/Parameters.h"
 
 using namespace std;
-
-void snt() {
-    int numbers[10];
-
-    for (int i = 0; i < 10; i++) {
-        numbers[i] = i;
-        MPI_Request status;
-        MPI_Isend(&numbers[i], 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &status);
-        MPI_Request_free(&status);
-    }
-}
 
 int main(int argc, char** argv) {
 	int size,rank;
@@ -27,18 +18,15 @@ int main(int argc, char** argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-    if (rank == 0) {
-        snt();        
-    } else {
-        sleep(5);
+    Parameters p;
+    p.m = 1;
+    p.s = 1;
+    p.p = 1;
+    int ids[1] = { 0 };
 
-        for (int i = 0; i < 10; i++) {
-            int nr;
-            MPI_Recv(&nr, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            cout << nr << endl;
-        }
-    }
+    Bum b(rank, 1, &p, ids, 0);
+    b.run();
+     
 
 	MPI_Finalize();
 

@@ -27,7 +27,6 @@ class Bum {
         int *museumAttendanceList;
         int *bumsIds;
 
-        ~Bum();
         void emptyDelayedEnterRequests();
         void hangAround();
         void checkForIncommingMessages();
@@ -36,6 +35,7 @@ class Bum {
         void sendEnterRequests();
         void waitForEnterResponses();
         bool tryToEnterMuseum();
+        void waitForExpositionStart();
 
         void handleMessageWhenIdle(MPI_Status &status);
         void participateInExposition();
@@ -51,6 +51,7 @@ class Bum {
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);
+        ~Bum();
         int getId();
         void run();
 };
