@@ -1,18 +1,20 @@
-#include "../inc/Request.h"
+#include "../inc/HelpRequest.h"
 
-Request::Request() {
+HelpRequest::HelpRequest() {
     processId = -1;
     timestamp = -1;
     currentTime = -1;
+    weight = -1;
 }
 
-Request::Request(int processId, int timestamp, int currentTime) {
+HelpRequest::HelpRequest(int processId, int timestamp, int currentTime, int weight) {
     this->processId = processId;
     this->timestamp = timestamp;
     this->currentTime = currentTime;
+    this->weight = weight;
 }
 
-bool Request::operator<(const Request &rhs) const {
+bool HelpRequest::operator<(const HelpRequest &rhs) const {
     return (timestamp < rhs.timestamp) 
         || (timestamp == rhs.timestamp && processId < rhs.processId);
 }

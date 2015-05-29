@@ -1,0 +1,22 @@
+#!/bin/bash
+SDIR=src
+ODIR=obj
+CC=mpicxx
+LFLAGS="-Wall"
+CFLAGS="-Wall -c"
+
+echo "all: menele" > Makefile
+objs=$(ls $SDIR/*.cpp | sed -r 's/\.cpp/\.o/g' | sed -r 's/'$SDIR'\//'$ODIR'\//g')
+echo "menele: "$objs >> Makefile
+echo -e "\t""$CC "$objs" $LFLAGS -o menele" >> Makefile
+
+for file in $SDIR/*.cpp
+do
+    echo $ODIR"/"$(g++ -MM $file | sed -r 's/\\//g') >> Makefile
+    echo -e "\t""$CC $file -o \$@ "$CFLAGS >> Makefile
+done
+
+echo "clean:" >> Makefile
+echo -e "\t""rm -f $ODIR/*" >> Makefile
+
+mkdir -p obj
