@@ -47,7 +47,7 @@ void Bum::hangAround() {
     bool wantsToGoToMuseum = false;
 
     while (!wantsToGoToMuseum) {
-        printf("Proces: %d, czas: %d - włóczy się po mieście\n", id, time);
+        printf("Proces: %d, czas: %d - włóczę się po mieście\n", id, time);
         time++;
 
         checkForIncommingMessages();
@@ -67,6 +67,8 @@ void Bum::checkForIncommingMessages() {
 }
 
 void Bum::handleMessageWhenIdle(MPI_Status &status) {
+    printf("Proces: %d, czas: %d - włócząc się po mieście odebrałem wiadomość typu %d od %d\n", id, time, status.MPI_TAG, status.MPI_SOURCE);
+
     if (status.MPI_TAG == ENTER_REQ) {
         Request enterRequest;
         MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -101,7 +103,7 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
 }
 
 void Bum::goToMuseum() {
-    printf("Proces: %d, czas: %d - chce wejść do muzeum\n", id, time);
+    printf("Proces: %d, czas: %d - chcę wejść do muzeum\n", id, time);
     sendEnterRequests();
     waitForEnterResponses();
     waitForExpositionStart();
@@ -116,6 +118,7 @@ void Bum::sendEnterRequests() {
     Request enterRequests[worldParameters->m - 1];
     int requestsIterator = 0;
 
+    printf("Proces: %d, czas: %d - Rozsyłam żądanie wejścia do muzeum\n", id, time);
     for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             time++;
@@ -137,6 +140,7 @@ void Bum::waitForEnterResponses() {
     int remainingResponses = worldParameters->m - 1;
     bool canEnter = (remainingResponses == 0);
 
+    printf("Proces: %d, czas: %d - Czekam na potwierdzenia odebrania mojego żądania wejścia do muzeum\n", id, time);
     while (!canEnter) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -205,6 +209,7 @@ bool Bum::tryToEnterMuseum() {
 
 void Bum::waitForExpositionStart() {
     
+    printf("Proces: %d, czas: %d - Czekam na rozpoczęcie ekspozycji\n", id, time);
     unsigned int myPosition = 0;
     for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
     if (myPosition == worldParameters->s - 1) {
@@ -218,6 +223,7 @@ void Bum::sendAttendanceList() {
     Request attendanceListWrapper[worldParameters->s];
     unsigned int i = 0;
 
+    printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++) {
         museumAttendanceList[i] = (*it).processId;
         attendanceListWrapper[i] = *it;
@@ -234,6 +240,7 @@ void Bum::sendAttendanceList() {
 void Bum::waitForAttendanceList() {
     bool museumAttendanceListUpdated = false;
 
+    printf("Proces: %d, czas: %d - Czekam na listę obecności\n", id, time);
     while (!museumAttendanceListUpdated) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
@@ -266,13 +273,16 @@ void Bum::waitForAttendanceList() {
 }
 
 void Bum::participateInExposition() {
+    printf("Proces: %d, czas: %d - Jestem na ekspozycji\n", id, time);
     time++;
 
     bool gotDrunk = ((rand() % 10) <= 4);
 
     if (gotDrunk) {
+        printf("Proces: %d, czas: %d - Upiłem się i czekam na pielęgniarzy\n", id, time);
         callForHelp(); 
         waitForHelp();
+        printf("Proces: %d, czas: %d - Otrzymałem pomoc od pielęgniarzy\n", id, time);
     }
 
     exitNotifications.clear();
@@ -413,6 +423,7 @@ void Bum::insertEnterRequest(Request &enterRequest) {
 }
 
 void Bum::leaveMuseum() {
+    printf("Proces: %d, czas: %d - Zamierzam opuścić muzeum\n", id, time);
     if (museumAttendanceList[worldParameters->s - 1] == id) {
         waitForOthersToExit();
     } else {
@@ -431,6 +442,7 @@ void Bum::notifyAboutExit() {
 }
 
 void Bum::waitForOthersToExit() {
+    printf("Proces: %d, czas: %d - Czekam na innych aż wyjdą\n", id, time);
     bool canExit = (worldParameters->s == 1);
     
     while (!canExit) {
@@ -469,6 +481,7 @@ void Bum::waitForOthersToExit() {
         canExit = (exitNotifications.size() == (worldParameters->m - 1));
     }
 
+    printf("Proces: %d, czas: %d - Informuję o opuszczeniu muzeum\n", id, time);
     Request notificationsToSend[worldParameters->s];
     unsigned int i = 0;
     for (list<Request>::iterator it = exitNotifications.begin(); it != exitNotifications.end(); it++, i++) {
