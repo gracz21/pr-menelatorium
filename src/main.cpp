@@ -1,10 +1,13 @@
 #include <mpi.h>
 #include <set>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <unistd.h>
 
 #include "../inc/HelpRequest.h"
 #include "../inc/MPIRequest.h"
+#include "../inc/MPIHelpRequest.h"
 #include "../inc/Bum.h"
 #include "../inc/Parameters.h"
 
@@ -18,6 +21,8 @@ int main(int argc, char** argv) {
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
+    srand(time(NULL) + rank);
+
     Parameters p;
     p.m = 2;
     p.s = 1;
@@ -27,6 +32,8 @@ int main(int argc, char** argv) {
     Bum b(rank, 1, &p, ids, 0);
     b.run();
      
+    MPI_Type_free(&(MPIRequest::getInstance().getType()));
+    MPI_Type_free(&(MPIHelpRequest::getInstance().getType()));
 
 	MPI_Finalize();
 
