@@ -1,46 +1,43 @@
 #include <mpi.h>
-#include <set>
+#include <queue>
 #include <iostream>
-#include <unistd.h>
 
-#include "../inc/HelpRequest.h"
-#include "../inc/MPIRequest.h"
+#include "../inc/Request.h"
+#include "../inc/Init.h"
+#include "../inc/Bum.h"
+#include "../inc/MuseumService.h"
 
 using namespace std;
 
-void snt() {
-    int numbers[10];
-
-    for (int i = 0; i < 10; i++) {
-        numbers[i] = i;
-        MPI_Request status;
-        MPI_Isend(&numbers[i], 1, MPI_INT, 1, 0, MPI_COMM_WORLD, &status);
-        MPI_Request_free(&status);
-    }
-}
-
 int main(int argc, char** argv) {
-	int size,rank;
+    Parameters params;
+    int size, rank;
 
-	MPI_Init(&argc,&argv);
+    MPI_Init(&argc,&argv);
 
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    size = MPI::COMM_WORLD.Get_size();
+    rank = MPI::COMM_WORLD.Get_rank();
 
-    if (rank == 0) {
-        snt();        
-    } else {
-        sleep(5);
-
-        for (int i = 0; i < 10; i++) {
-            int nr;
-            MPI_Recv(&nr, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            cout << nr << endl;
+    int st = parseParameters(params, argc, argv, size);
+    if(st == 0) {
+        int *bumsIds = createBumsIds(params.m);
+        if(rank == 0) {
+            MuseumService museumService;
+            museumService.run();
+        } else {
+            Bum bum(rank, randWeight(rank), &params, bumsIds);
+            bum.run();
+        }
+    } else if(rank == 0) { 
+        if(st == -1) {
+            cout << "Podano za malo parametrow!";
+        } else {
+            cout << "Parametry nie spelniaja zalozen zadania!";
         }
     }
 
-	MPI_Finalize();
+    MPI_Finalize();
+
 
     return 0;
 }
