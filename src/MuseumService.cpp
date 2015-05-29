@@ -21,5 +21,5 @@ void MuseumService::startExposition() {
 void MuseumService::endExposition() {
 	Request Request;
 	MPI_Status status;
-	MPI_Recv(&inRequest, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
+	MPI_Recv(&Request, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
 }
