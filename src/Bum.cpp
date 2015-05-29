@@ -81,9 +81,9 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
         MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
 
     } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
-        Request exitNotification;
-        MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+        Request exitNotifications[worldParameters->s];
+        MPI_Recv(exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > exitNotifications[worldParameters->s - 1].currentTime) ? time : exitNotifications[worldParameters->s - 1].currentTime) + 1;
 
     } else if (status.MPI_TAG == HELP_REQ) {
         HelpRequest helpRequest;
@@ -173,7 +173,7 @@ void Bum::waitForEnterResponses() {
 
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
             Request exitNotifications[worldParameters->s];
-            MPI_Recv(&exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            MPI_Recv(exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             time = ((time > exitNotifications[worldParameters->s - 1].currentTime) ? time : exitNotifications[worldParameters->s -1].currentTime) + 1;
 
             addToEnterRequestsFilter(exitNotifications);
@@ -215,7 +215,31 @@ bool Bum::tryToEnterMuseum() {
 
 void Bum::waitForExpositionStart() {
     cout << "Proces: " << id << " oczekiwanie na listę obecności" << endl;
-    sleep(100000000);
+    
+    unsigned int myPosition = 0;
+    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
+    if (myPosition == worldParameters->s - 1) {
+        sendAttendanceList(); 
+    } else {
+        waitForAttendanceList();
+    }
+}
+
+void Bum::sendAttendanceList() {
+    unsigned int i = 0;
+    for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++) {
+        museumAttendanceList[i] = (*it).processId;
+    }
+
+    for (i = 0; i < worldParameters->s; i++) {
+        if (museumAttendanceList[i] != id) {
+            MPI_Send(museumAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), museumAttendanceList[i], EXPO_START, MPI_COMM_WORLD);
+        }
+    }
+}
+
+void Bum::waitForAttendanceList() {
+
 }
 
 void Bum::participateInExposition() {
@@ -275,15 +299,6 @@ void Bum::waitForHelp() {
             time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
 
             delayedEnterRequests.push_back(enterRequest);
-
-        } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
-            Request exitNotification;
-            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
-
-            if (id == museumAttendanceList[worldParameters->s - 1]) {
-                exitNotifications.push_back(exitNotification);
-            }
 
         } else if (status.MPI_TAG == HELP_REQ) {
             HelpRequest helpRequest;
@@ -378,31 +393,19 @@ void Bum::insertEnterRequest(Request &enterRequest) {
 void Bum::leaveMuseum() {
     if (museumAttendanceList[worldParameters->s - 1] == id) {
         waitForOthersToExit();
+    } else {
+        notifyAboutExit();
     }
 
-    notifyAboutExit();
 }
 
 void Bum::notifyAboutExit() {
-    Request notifications[worldParameters->m - 1];
-    int notificationsIterator = 0;
+    Request exitNotification = *myEnterRequest;
+    exitNotification.currentTime = ++time;
 
-    for (unsigned int i = 0; i < worldParameters->m; i++) {
-        if (bumsIds[i] != id) {
-            time++;
-
-            notifications[notificationsIterator].processId = id;
-            notifications[notificationsIterator].timestamp = myEnterRequest->timestamp;
-            notifications[notificationsIterator].currentTime = time;
-
-            MPI_Request status;
-            MPI_Isend(&notifications[notificationsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], 
-                      EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
-            MPI_Request_free(&status);
-
-            notificationsIterator++;
-        }
-    }
+    MPI_Request status;
+    MPI_Isend(&exitNotification, 1, MPIRequest::getInstance().getType(), museumAttendanceList[worldParameters->s - 1], EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
+    MPI_Request_free(&status);
 }
 
 void Bum::waitForOthersToExit() {
@@ -442,6 +445,20 @@ void Bum::waitForOthersToExit() {
             throw "Unexpected message";
         }
         canExit = (exitNotifications.size() == (worldParameters->m - 1));
+    }
+
+    Request notificationsToSend[worldParameters->s];
+    unsigned int i = 0;
+    for (list<Request>::iterator it = exitNotifications.begin(); it != exitNotifications.end(); it++, i++) {
+        notificationsToSend[i] = *it;
+    }
+    notificationsToSend[worldParameters->s - 1] = *myEnterRequest;
+    for (i = 0; i < worldParameters->m; i++) {
+        if (bumsIds[i] != id) {
+            notificationsToSend[worldParameters->s - 1].currentTime = ++time;
+
+            MPI_Send(notificationsToSend, worldParameters->s, MPIRequest::getInstance().getType(), bumsIds[i], EXIT_NOTIFICATION,  MPI_COMM_WORLD);
+        }
     }
 }
 
