@@ -35,6 +35,7 @@ class Bum {
         void goToMuseum();
         void sendEnterRequests();
         void waitForEnterResponses();
+        bool tryToEnterMuseum();
 
         void handleMessageWhenIdle(MPI_Status &status);
         void participateInExposition();

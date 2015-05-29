@@ -163,6 +163,7 @@ void Bum::waitForEnterResponses() {
             if (enterRequest.processId != -1) {
                 insertEnterRequest(enterRequest);  
             }
+            remainingResponses--;
 
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
             Request exitNotification;
@@ -188,7 +189,21 @@ void Bum::waitForEnterResponses() {
         } else {
             throw "Unexpected message";
         }
+
+        if (remainingResponses == 0 && (status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
+            canEnter = tryToEnterMuseum();
+        }
     }
+}
+
+bool Bum::tryToEnterMuseum() {
+    unsigned int myPosition = 0;
+
+    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++) {
+        myPosition++;
+    }
+
+    return myPosition <= (worldParameters->s - 1);
 }
 
 void Bum::participateInExposition() {
