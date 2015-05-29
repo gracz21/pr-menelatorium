@@ -226,20 +226,55 @@ void Bum::waitForExpositionStart() {
 }
 
 void Bum::sendAttendanceList() {
+    Request attendanceListWrapper[worldParameters->s];
     unsigned int i = 0;
+
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++) {
         museumAttendanceList[i] = (*it).processId;
+        attendanceListWrapper[i] = *it;
     }
 
     for (i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
-            MPI_Send(museumAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), museumAttendanceList[i], EXPO_START, MPI_COMM_WORLD);
+            attendanceListWrapper[worldParameters->s - 1].currentTime = ++time;
+            MPI_Send(attendanceListWrapper, worldParameters->s, MPIRequest::getInstance().getType(), museumAttendanceList[i], EXPO_START, MPI_COMM_WORLD);
         }
     }
 }
 
 void Bum::waitForAttendanceList() {
+    bool museumAttendanceListUpdated = false;
 
+    while (!museumAttendanceListUpdated) {
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        cout << "Proces: " << id << " Dostałem wiadomość od " << status.MPI_SOURCE << " typu " << status.MPI_TAG << endl;
+
+        if (status.MPI_TAG == ENTER_REQ) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+
+            Request response = *myEnterRequest;
+            response.currentTime = time;
+
+            MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
+
+        } else if (status.MPI_TAG == EXPO_START) {
+            Request packedAttendanceList[worldParameters->s];
+
+            MPI_Recv(packedAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > packedAttendanceList[worldParameters->s - 1].currentTime) ? time : packedAttendanceList[worldParameters->s - 1].currentTime) + 1;
+
+            for (unsigned int i = 0; i < worldParameters->s; i++) {
+                museumAttendanceList[i] = packedAttendanceList[i].processId;
+            }
+            museumAttendanceListUpdated = true;
+
+        } else {
+            throw "Unexpected message";
+        }
+    }
 }
 
 void Bum::participateInExposition() {
