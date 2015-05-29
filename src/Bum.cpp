@@ -104,7 +104,7 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
 }
 
 void Bum::goToMuseum() {
-    cout << "Proces: " << id << ", czas: " << time << " chce wejść do muzeum" << endl;
+    cout << "Proces: " << id << ", czas: " << time << " chcę wejść do muzeum" << endl;
     sendEnterRequests();
     waitForEnterResponses();
     waitForExpositionStart();
@@ -127,6 +127,7 @@ void Bum::sendEnterRequests() {
             enterRequests[requestsIterator].timestamp = myEnterRequest->timestamp;
             enterRequests[requestsIterator].currentTime = time;
 
+            cout << "Proces: " << id << ", czas: " << time << " pytam proces " << bumsIds[i] << " czy chce wejść do muzeum" << endl;
             MPI_Request status;
             MPI_Isend(&enterRequests[requestsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], ENTER_REQ, MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
@@ -138,7 +139,7 @@ void Bum::sendEnterRequests() {
 
 void Bum::waitForEnterResponses() {
     int remainingResponses = worldParameters->m - 1;
-    bool canEnter = false;
+    bool canEnter = (remainingResponses == 0);
 
     while (!canEnter) {
         MPI_Status status;
@@ -257,7 +258,7 @@ void Bum::callForHelp() {
 
 void Bum::waitForHelp() {
     unsigned int remainingResponsesNumber = worldParameters->s - 1;
-    bool served = false;
+    bool served = (remainingResponsesNumber == 0);
     
     while (!served) {
         MPI_Status status;
@@ -400,7 +401,7 @@ void Bum::notifyAboutExit() {
 }
 
 void Bum::waitForOthersToExit() {
-    bool canExit = false;
+    bool canExit = (worldParameters->s == 1);
     
     while (!canExit) {
         MPI_Status status;
