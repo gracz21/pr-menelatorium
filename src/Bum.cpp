@@ -106,19 +106,24 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
 
 void Bum::goToMuseum() {
     sendEnterRequests();
+    waitForEnterResponses();
 }
 
 void Bum::sendEnterRequests() {
+    enterRequests.clear();
+    enterRequestsFilter.clear();
+    enterRequests.insert(Request(id, time, time));
+    myEnterRequest = &(*enterRequests.begin());
+
     Request enterRequests[worldParameters->m - 1];
     int requestsIterator = 0;
-    int timestamp = time;
 
     for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             time++;
 
             enterRequests[requestsIterator].processId = id;
-            enterRequests[requestsIterator].timestamp = timestamp;
+            enterRequests[requestsIterator].timestamp = myEnterRequest->timestamp;
             enterRequests[requestsIterator].currentTime = time;
 
             MPI_Request status;
@@ -126,6 +131,52 @@ void Bum::sendEnterRequests() {
             MPI_Request_free(&status);
 
             requestsIterator++;
+        }
+    }
+}
+
+void Bum::waitForEnterResponses() {
+    int remainingResponses = worldParameters->m - 1;
+    bool canEnter = false;
+
+    while (!canEnter) {
+        MPI_Status status;
+        MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+
+        if (status.MPI_TAG == ENTER_REQ) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+
+            insertEnterRequest(enterRequest);  
+            Request response = *myEnterRequest;
+            response.currentTime = time;
+
+            MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD);
+
+        } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
+            Request exitNotification;
+            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+            enterRequests.erase(exitNotification);
+            enterRequestsFilter.insert(exitNotification);
+
+        } else if (status.MPI_TAG == HELP_REQ) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+
+            HelpRequest response(-1, -1, ++time, -1);
+            MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
+
+        } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
+            HelpRequest helpRequest;
+            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
+
+        } else {
+            throw "Unexpected message";
         }
     }
 }
@@ -151,7 +202,6 @@ void Bum::callForHelp() {
     helpRequests.insert(HelpRequest(id, time, time, weight));
     myHelpRequest = &(*helpRequests.begin());
 
-    int timeWhenGotDrunk = time;
     HelpRequest helpRequestBuffers[worldParameters->s - 1];
     int helpRequestsIterator = 0;
 
@@ -160,7 +210,7 @@ void Bum::callForHelp() {
             time++;
 
             helpRequestBuffers[helpRequestsIterator].processId = id;
-            helpRequestBuffers[helpRequestsIterator].timestamp = timeWhenGotDrunk;;
+            helpRequestBuffers[helpRequestsIterator].timestamp = myHelpRequest->timestamp;
             helpRequestBuffers[helpRequestsIterator].currentTime = time;
             helpRequestBuffers[helpRequestsIterator].weight = weight;
 
@@ -279,6 +329,12 @@ void Bum::releaseNurses() {
 void Bum::insertHelpRequest(HelpRequest &helpRequest) {
     if (helpRequestsFilter.find(helpRequest) == helpRequestsFilter.end()) {
         helpRequests.insert(helpRequest);
+    }
+}
+
+void Bum::insertEnterRequest(Request &enterRequest) {
+    if (enterRequestsFilter.find(enterRequest) == enterRequestsFilter.end()) {
+        enterRequests.insert(enterRequest);
     }
 }
 

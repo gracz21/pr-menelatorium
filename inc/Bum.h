@@ -16,6 +16,7 @@ class Bum {
         int time;
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
+        std::set<Request> enterRequestsFilter;
         std::set<HelpRequest> helpRequests;
         std::set<HelpRequest> helpRequestsFilter;
         std::list<Request> delayedEnterRequests;
@@ -33,6 +34,7 @@ class Bum {
 
         void goToMuseum();
         void sendEnterRequests();
+        void waitForEnterResponses();
 
         void handleMessageWhenIdle(MPI_Status &status);
         void participateInExposition();
@@ -41,6 +43,7 @@ class Bum {
         bool tryToGetHelp();
         void releaseNurses();
         void insertHelpRequest(HelpRequest &helpRequest);
+        void insertEnterRequest(Request &enterRequest);
         void leaveMuseum();
         void notifyAboutExit();
         void waitForOthersToExit();
