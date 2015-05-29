@@ -136,15 +136,19 @@ void Bum::sendEnterRequests() {
             requestsIterator++;
         }
     }
+    cout << "Proces: " << id << " zapytałem wszystkich" << endl;
 }
 
 void Bum::waitForEnterResponses() {
     int remainingResponses = worldParameters->m - 1;
     bool canEnter = (remainingResponses == 0);
 
+    cout << "Proces: " << id << " czekam na " << remainingResponses << " odpowiedzi" << endl;
+
     while (!canEnter) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        cout << "Proces: " << id << " Dostałem wiadomość od " << status.MPI_SOURCE << " typu " << status.MPI_TAG << endl;
 
         if (status.MPI_TAG == ENTER_REQ) {
             Request enterRequest;
@@ -155,7 +159,7 @@ void Bum::waitForEnterResponses() {
             Request response = *myEnterRequest;
             response.currentTime = time;
 
-            MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD);
+            MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
 
         } else if (status.MPI_TAG == ENTER_RESP) {
             Request enterRequest;
@@ -201,6 +205,7 @@ void Bum::waitForEnterResponses() {
 bool Bum::tryToEnterMuseum() {
     unsigned int myPosition = 0;
 
+    cout << "Proces " << id << " próbuję wejść do muzeum" << endl;
     for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++) {
         myPosition++;
     }
