@@ -3,7 +3,8 @@
 
 class MuseumService {
 	private:
-		
+		void startExposition();
+		void endExposition();
 
 	public:
 		void run();
