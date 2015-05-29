@@ -19,10 +19,10 @@ int main(int argc, char** argv) {
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     Parameters p;
-    p.m = 1;
+    p.m = 2;
     p.s = 1;
     p.p = 1;
-    int ids[1] = { 0 };
+    int ids[2] = { 0, 1 };
 
     Bum b(rank, 1, &p, ids, 0);
     b.run();

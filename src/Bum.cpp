@@ -131,6 +131,7 @@ void Bum::sendEnterRequests() {
             MPI_Request status;
             MPI_Isend(&enterRequests[requestsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], ENTER_REQ, MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
+            cout << "Proces: " << id << ", czas: " << time << " zapytałem proces " << bumsIds[i] << endl;
 
             requestsIterator++;
         }
@@ -156,8 +157,7 @@ void Bum::waitForEnterResponses() {
 
             MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD);
 
-        } 
-        if (status.MPI_TAG == ENTER_RESP) {
+        } else if (status.MPI_TAG == ENTER_RESP) {
             Request enterRequest;
             MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
