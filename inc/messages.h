@@ -6,5 +6,8 @@
 #define ENTER_RESP 12
 #define EXPO_START 13
 #define EXPO_START_CONFIRMATION 14
+#define HELP_REQ 15
+#define HELP_RESP 16
+#define NURSE_RELEASE_NOTIFICATION 17
 
 #endif
