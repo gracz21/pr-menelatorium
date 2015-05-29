@@ -25,10 +25,6 @@ Bum::~Bum() {
     delete [] museumAttendanceList;
 }
 
-int Bum::getId() {
-    return id;
-}
-
 void Bum::run() {
     emptyDelayedEnterRequests();
     hangAround();

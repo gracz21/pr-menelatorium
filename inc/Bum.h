@@ -56,7 +56,6 @@ class Bum {
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);
         ~Bum();
-        int getId();
         void run();
 };
 
