@@ -3,7 +3,7 @@
 
 using namespace std;
 
-int checkParams(Parameters params) {
+int checkParameters(Parameters params) {
 	if(params.m > params.s) {
 		if(4*params.p < params.s) {
 			return 0;
@@ -40,7 +40,7 @@ int parseParameters(Parameters &params, int argc, char * const argv[], int size)
 	}
 
 	if(count == 2) {
-		if(checkParams(params) == 0) {
+		if(checkParameters(params) == 0) {
 			return 0;
 		} else {
 			return -2;
