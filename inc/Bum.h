@@ -48,6 +48,8 @@ class Bum {
         void leaveMuseum();
         void notifyAboutExit();
         void waitForOthersToExit();
+        void addToEnterRequestsFilter(Request *enterRequests);
+        void removeFromEnterRequests(Request *enterRequests);
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);

@@ -172,12 +172,12 @@ void Bum::waitForEnterResponses() {
             remainingResponses--;
 
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
-            Request exitNotification;
-            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+            Request exitNotifications[worldParameters->s];
+            MPI_Recv(&exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > exitNotifications[worldParameters->s - 1].currentTime) ? time : exitNotifications[worldParameters->s -1].currentTime) + 1;
 
-            enterRequests.erase(exitNotification);
-            enterRequestsFilter.insert(exitNotification);
+            addToEnterRequestsFilter(exitNotifications);
+            removeFromEnterRequests(exitNotifications);
 
         } else if (status.MPI_TAG == HELP_REQ) {
             HelpRequest helpRequest;
@@ -214,7 +214,7 @@ bool Bum::tryToEnterMuseum() {
 }
 
 void Bum::waitForExpositionStart() {
-    cout << "Waiting" << endl;
+    cout << "Proces: " << id << " oczekiwanie na listę obecności" << endl;
     sleep(100000000);
 }
 
@@ -442,5 +442,17 @@ void Bum::waitForOthersToExit() {
             throw "Unexpected message";
         }
         canExit = (exitNotifications.size() == (worldParameters->m - 1));
+    }
+}
+
+void Bum::addToEnterRequestsFilter(Request *enterRequests) {
+    for (unsigned int i = 0; i < worldParameters->s; i++) {
+        enterRequestsFilter.insert(enterRequests[i]);
+    }
+}
+
+void Bum::removeFromEnterRequests(Request *enterRequests) {
+    for (unsigned int i = 0; i < worldParameters->s; i++) {
+        this->enterRequests.erase(enterRequests[i]);
     }
 }
