@@ -154,6 +154,16 @@ void Bum::waitForEnterResponses() {
 
             MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD);
 
+        } 
+        if (status.MPI_TAG == ENTER_RESP) {
+            Request enterRequest;
+            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+
+            if (enterRequest.processId != -1) {
+                insertEnterRequest(enterRequest);  
+            }
+
         } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
             Request exitNotification;
             MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
