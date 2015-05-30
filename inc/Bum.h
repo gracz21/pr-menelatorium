@@ -15,6 +15,8 @@ class BumState;
 
 class Bum {
     friend class HangingAround;
+    friend class WaitingForEnterResponses;
+
     private:
         int id;
         unsigned short weight;

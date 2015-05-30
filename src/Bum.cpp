@@ -9,6 +9,7 @@
 #include "../inc/MPIRequest.h"
 #include "../inc/MPIHelpRequest.h"
 #include "../inc/HangingAround.h"
+#include "../inc/WaitingForEnterResponses.h"
 
 using namespace std;
 
@@ -22,11 +23,13 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     currentState = NULL;
     museumAttendanceList = new int[worldParameters->s];
     states["hanging_around"] = new HangingAround(this); 
+    states["waiting_for_enter_responses"] = new WaitingForEnterResponses(this); 
 }
 
 Bum::~Bum() {
     delete [] museumAttendanceList;
     delete states["hanging_around"];
+    delete states["waiting_for_enter_responses"];
 }
 
 void Bum::run() {
@@ -61,6 +64,7 @@ void Bum::hangAround() {
 void Bum::goToMuseum() {
     printf("Proces: %d, czas: %d - chcę wejść do muzeum\n", id, time);
     museumAttendanceListUpdated = false;
+
     sendEnterRequests();
     waitForEnterResponses();
     waitForExpositionStart();
@@ -96,6 +100,7 @@ void Bum::sendEnterRequests() {
 void Bum::waitForEnterResponses() {
     int remainingResponses = worldParameters->m - 1;
     bool canEnter = (remainingResponses == 0);
+    currentState = states["waiting_for_enter_responses"];
 
     printf("Proces: %d, czas: %d - Czekam na potwierdzenia odebrania mojego żądania wejścia do muzeum\n", id, time);
     while (!canEnter) {
