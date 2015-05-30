@@ -3,6 +3,7 @@
 
 #include <set>
 #include <list>
+#include <map>
 #include <mpi.h>
 
 #include "Request.h"
@@ -17,7 +18,8 @@ class Bum {
         int id;
         unsigned short weight;
         int time;
-        BumState* state;
+        std::map<char*, BumState*> states;
+        BumState* currentState;
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
         std::set<Request> enterRequestsFilter;
