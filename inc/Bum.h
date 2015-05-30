@@ -30,9 +30,7 @@ class Bum {
         std::set<Request> enterRequestsFilter;
         std::set<HelpRequest> helpRequests;
         std::set<HelpRequest> helpRequestsFilter;
-        std::list<Request> delayedEnterRequests;
         std::list<Request> exitNotifications;
-
 
         const HelpRequest *myHelpRequest;
         const Request *myEnterRequest;
@@ -40,7 +38,6 @@ class Bum {
         int *bumsIds;
         bool museumAttendanceListUpdated;
 
-        void emptyDelayedEnterRequests();
         void hangAround();
 
         void goToMuseum();

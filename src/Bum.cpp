@@ -299,19 +299,6 @@ void Bum::leaveMuseum() {
     } else {
         notifyAboutExit();
     }
-    
-    emptyDelayedEnterRequests();
-}
-
-void Bum::emptyDelayedEnterRequests() {
-    while (!delayedEnterRequests.empty()) {
-        Request enterRequest = delayedEnterRequests.front();
-        Request response = Request(-1, -1, ++time);
-
-        MPI_Send(&response, 1, MPIRequest::getInstance().getType(), enterRequest.processId, ENTER_RESP, MPI_COMM_WORLD);
-        
-        delayedEnterRequests.pop_front();
-    }
 }
 
 void Bum::notifyAboutExit() {
