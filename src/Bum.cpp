@@ -152,8 +152,8 @@ void Bum::sendAttendanceList() {
 
     for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
-            int museumLocked = 1;
-            MPI_Send(&museumLocked, MPI_INT, 1, bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
+            Request lock(-1, -1, ++time);
+            MPI_Send(&lock, MPIRequest::getInstance().getType(), 1, bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
         }
     }
 
@@ -473,4 +473,12 @@ void Bum::delayExitNotification(MPI_Status &status) {
     time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
 
     exitNotifications.push_back(exitNotification);
+}
+
+void Bum::saveMuseumLock(MPI_Status &status) {
+    Request lock;
+    MPI_Recv(&lock, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    time = ((time > lock.currentTime) ? time : lock.currentTime) + 1;
+
+    museumLocked = true;
 }

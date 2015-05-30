@@ -75,6 +75,7 @@ class Bum {
         void saveHelpResp(MPI_Status &status);
         void saveNurseRelease(MPI_Status &status);
         void delayExitNotification(MPI_Status &status);
+        void saveMuseumLock(MPI_Status &status);
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);

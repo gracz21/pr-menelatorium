@@ -45,5 +45,5 @@ void WaitingForAttendanceList::handleNurseReleaseNotification(MPI_Status &status
 }
 
 void WaitingForAttendanceList::handleMuseumLock(MPI_Status &status) {
-    context->museumLocked = true;
+    context->saveMuseumLock(status);
 }

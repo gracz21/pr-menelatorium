@@ -42,5 +42,5 @@ void WaitingForEnterResponses::handleNurseReleaseNotification(MPI_Status &status
 }
 
 void WaitingForEnterResponses::handleMuseumLock(MPI_Status &status) {
-    context->museumLocked = true;
+    context->saveMuseumLock(status);
 }
