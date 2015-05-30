@@ -1,7 +1,7 @@
 all: menele
-menele: obj/Bum.o obj/BumFactory.o obj/BumState.o obj/HangingAround.o obj/HelpRequest.o obj/Init.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/MuseumService.o obj/Request.o obj/WaitingForAttendanceList.o obj/WaitingForEnterResponses.o obj/WaitingForHelp.o
-	mpicxx obj/Bum.o obj/BumFactory.o obj/BumState.o obj/HangingAround.o obj/HelpRequest.o obj/Init.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/MuseumService.o obj/Request.o obj/WaitingForAttendanceList.o obj/WaitingForEnterResponses.o obj/WaitingForHelp.o -Wall -o menele
-obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/MPIHelpRequest.h src/../inc/HangingAround.h src/../inc/BumState.h src/../inc/WaitingForEnterResponses.h src/../inc/WaitingForAttendanceList.h src/../inc/WaitingForHelp.h
+menele: obj/Bum.o obj/BumFactory.o obj/BumState.o obj/HangingAround.o obj/HelpRequest.o obj/Init.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/MuseumService.o obj/Request.o obj/WaitingForAttendanceList.o obj/WaitingForEnterResponses.o obj/WaitingForExit.o obj/WaitingForHelp.o
+	mpicxx obj/Bum.o obj/BumFactory.o obj/BumState.o obj/HangingAround.o obj/HelpRequest.o obj/Init.o obj/main.o obj/MPICustomType.o obj/MPIHelpRequest.o obj/MPIRequest.o obj/MuseumService.o obj/Request.o obj/WaitingForAttendanceList.o obj/WaitingForEnterResponses.o obj/WaitingForExit.o obj/WaitingForHelp.o -Wall -o menele
+obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/messages.h src/../inc/Request.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/MPIHelpRequest.h src/../inc/HangingAround.h src/../inc/BumState.h src/../inc/WaitingForEnterResponses.h src/../inc/WaitingForAttendanceList.h src/../inc/WaitingForHelp.h src/../inc/WaitingForExit.h
 	mpicxx src/Bum.cpp -o $@ -Wall -c
 obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h
 	mpicxx src/BumFactory.cpp -o $@ -Wall -c
@@ -29,6 +29,8 @@ obj/WaitingForAttendanceList.o: src/WaitingForAttendanceList.cpp src/../inc/Wait
 	mpicxx src/WaitingForAttendanceList.cpp -o $@ -Wall -c
 obj/WaitingForEnterResponses.o: src/WaitingForEnterResponses.cpp src/../inc/WaitingForEnterResponses.h src/../inc/BumState.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/Request.h
 	mpicxx src/WaitingForEnterResponses.cpp -o $@ -Wall -c
+obj/WaitingForExit.o: src/WaitingForExit.cpp src/../inc/WaitingForExit.h src/../inc/BumState.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/Request.h
+	mpicxx src/WaitingForExit.cpp -o $@ -Wall -c
 obj/WaitingForHelp.o: src/WaitingForHelp.cpp src/../inc/WaitingForHelp.h src/../inc/BumState.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/Request.h
 	mpicxx src/WaitingForHelp.cpp -o $@ -Wall -c
 clean:

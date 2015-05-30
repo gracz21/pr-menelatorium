@@ -12,6 +12,7 @@
 #include "../inc/WaitingForEnterResponses.h"
 #include "../inc/WaitingForAttendanceList.h"
 #include "../inc/WaitingForHelp.h"
+#include "../inc/WaitingForExit.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     states["waiting_for_enter_responses"] = new WaitingForEnterResponses(this); 
     states["waiting_for_attendance_list"] = new WaitingForAttendanceList(this); 
     states["waiting_for_help"] = new WaitingForHelp(this); 
+    states["waiting_for_exit"] = new WaitingForExit(this); 
 }
 
 Bum::~Bum() {
@@ -36,6 +38,7 @@ Bum::~Bum() {
     delete states["waiting_for_enter_responses"];
     delete states["waiting_for_attendance_list"];
     delete states["waiting_for_help"];
+    delete states["waiting_for_exit"];
 }
 
 void Bum::run() {
@@ -330,54 +333,14 @@ void Bum::notifyAboutExit() {
 void Bum::waitForOthersToExit() {
     printf("Proces: %d, czas: %d - Czekam na innych aż wyjdą\n", id, time);
     bool canExit = (worldParameters->s == 1);
-    
+    currentState = states["waiting_for_exit"];
+
     while (!canExit) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        if (status.MPI_TAG == ENTER_REQ) {
-            Request enterRequest;
-            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
+        currentState->handleMessage(status);
 
-            delayedEnterRequests.push_back(enterRequest);
-
-        } else if (status.MPI_TAG == EXIT_NOTIFICATION) {
-            Request exitNotification;
-            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
-
-            exitNotifications.push_back(exitNotification);
-
-        } else if (status.MPI_TAG == HELP_REQ) {
-            HelpRequest helpRequest;
-            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
-
-            HelpRequest response(-1, -1, ++time, -1);
-            MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
-
-        } else if (status.MPI_TAG == NURSE_RELEASE_NOTIFICATION) {
-            HelpRequest helpRequest;
-            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
-        } else {
-            printf("Unexpected message from %d when waiting for bums to exit museum: %d %d\n", status.MPI_SOURCE, status.MPI_TAG, id);
-
-
-
-            Request packedAttendanceList[worldParameters->s];
-            MPI_Recv(packedAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-
-            for (unsigned i = 0; i < worldParameters->s; i++) {
-                printf("%d\n", packedAttendanceList[i].processId);                
-            }
-
-
-
-
-            throw "Unexpected message";
-        }
         canExit = (exitNotifications.size() == (worldParameters->s - 1));
     }
 
@@ -519,4 +482,12 @@ void Bum::saveNurseRelease(MPI_Status &status) {
 
     helpRequestsFilter.insert(helpRequest);
     helpRequests.erase(helpRequest);
+}
+
+void Bum::delayExitNotification(MPI_Status &status) {
+    Request exitNotification;
+    MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+    exitNotifications.push_back(exitNotification);
 }

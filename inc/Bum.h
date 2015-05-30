@@ -18,6 +18,7 @@ class Bum {
     friend class WaitingForEnterResponses;
     friend class WaitingForAttendanceList;
     friend class WaitingForHelp;
+    friend class WaitingForExit;
 
     private:
         int id;
@@ -77,6 +78,7 @@ class Bum {
         void saveHelpReq(MPI_Status &status);
         void saveHelpResp(MPI_Status &status);
         void saveNurseRelease(MPI_Status &status);
+        void delayExitNotification(MPI_Status &status);
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);
