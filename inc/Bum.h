@@ -9,11 +9,15 @@
 #include "HelpRequest.h"
 #include "Parameters.h"
 
+class BumState;
+
 class Bum {
+    friend class BumState;
     private:
         int id;
         unsigned short weight;
         int time;
+        BumState* state;
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
         std::set<Request> enterRequestsFilter;
@@ -21,6 +25,7 @@ class Bum {
         std::set<HelpRequest> helpRequestsFilter;
         std::list<Request> delayedEnterRequests;
         std::list<Request> exitNotifications;
+
 
         const HelpRequest *myHelpRequest;
         const Request *myEnterRequest;

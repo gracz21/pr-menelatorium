@@ -5,7 +5,7 @@ obj/Bum.o: src/Bum.cpp src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequ
 	mpicxx src/Bum.cpp -o $@ -Wall -c
 obj/BumFactory.o: src/BumFactory.cpp src/../inc/BumFactory.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h
 	mpicxx src/BumFactory.cpp -o $@ -Wall -c
-obj/BumState.o: src/BumState.cpp src/../inc/BumState.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/Parameters.h
+obj/BumState.o: src/BumState.cpp src/../inc/BumState.h
 	mpicxx src/BumState.cpp -o $@ -Wall -c
 obj/HelpRequest.o: src/HelpRequest.cpp src/../inc/HelpRequest.h
 	mpicxx src/HelpRequest.cpp -o $@ -Wall -c
