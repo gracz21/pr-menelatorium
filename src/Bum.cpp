@@ -153,7 +153,7 @@ void Bum::sendAttendanceList() {
     for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             Request lock(-1, -1, ++time);
-            MPI_Send(&lock, MPIRequest::getInstance().getType(), 1, bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
+            MPI_Send(&lock, 1, MPIRequest::getInstance().getType(),  bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
         }
     }
 
