@@ -123,6 +123,7 @@ void Bum::waitForEnterResponses() {
             canEnter = tryToEnterMuseum();
         }
     }
+    printf("Proces: %d, czas: %d - Mogę wejść do muzeum\n", id, time);
 }
 
 bool Bum::tryToEnterMuseum() {
@@ -139,7 +140,12 @@ void Bum::waitForExpositionStart() {
     printf("Proces: %d, czas: %d - Czekam na rozpoczęcie ekspozycji\n", id, time);
     unsigned int myPosition = 0;
 
-    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
+    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++) {
+        printf("Proces: %d, czas: %d - Element listy obecności %d\n", id, time, (*it).processId);
+    }
+    if (myPosition == 0) {
+        printf("Moja lista obecności jest pusta\n");
+    }
     if (myPosition == worldParameters->s - 1) {
         sendAttendanceList(); 
     } else {
@@ -296,6 +302,7 @@ void Bum::insertHelpRequest(HelpRequest &helpRequest) {
 
 void Bum::insertEnterRequest(Request &enterRequest) {
     if (enterRequestsFilter.find(enterRequest) == enterRequestsFilter.end()) {
+        printf("%d\n", enterRequest.processId);
         enterRequests.insert(enterRequest);
     }
 }
