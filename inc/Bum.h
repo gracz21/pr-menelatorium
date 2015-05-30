@@ -16,6 +16,7 @@ class BumState;
 class Bum {
     friend class HangingAround;
     friend class WaitingForEnterResponses;
+    friend class WaitingForAttendanceList;
 
     private:
         int id;

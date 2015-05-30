@@ -10,6 +10,7 @@
 #include "../inc/MPIHelpRequest.h"
 #include "../inc/HangingAround.h"
 #include "../inc/WaitingForEnterResponses.h"
+#include "../inc/WaitingForAttendanceList.h"
 
 using namespace std;
 
@@ -24,12 +25,14 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     museumAttendanceList = new int[worldParameters->s];
     states["hanging_around"] = new HangingAround(this); 
     states["waiting_for_enter_responses"] = new WaitingForEnterResponses(this); 
+    states["waiting_for_attendance_list"] = new WaitingForAttendanceList(this); 
 }
 
 Bum::~Bum() {
     delete [] museumAttendanceList;
     delete states["hanging_around"];
     delete states["waiting_for_enter_responses"];
+    delete states["waiting_for_attendance_list"];
 }
 
 void Bum::run() {
@@ -149,8 +152,6 @@ void Bum::sendAttendanceList() {
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
         attendanceListWrapper[i] = *it;
-
-        printf("Obecny %d\n", museumAttendanceList[i]);
     }
 
     for (i = 0; i < worldParameters->s; i++) {
@@ -162,45 +163,14 @@ void Bum::sendAttendanceList() {
 }
 
 void Bum::waitForAttendanceList() {
+    currentState = states["waiting_for_attendance_list"];
+
     printf("Proces: %d, czas: %d - Czekam na listę obecności\n", id, time);
     while (!museumAttendanceListUpdated) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        if (status.MPI_TAG == ENTER_REQ) {
-            Request enterRequest;
-            MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
-
-            Request response = *myEnterRequest;
-            response.currentTime = time;
-
-            MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
-
-        } else if (status.MPI_TAG == EXPO_START) {
-            Request packedAttendanceList[worldParameters->s];
-
-            MPI_Recv(packedAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > packedAttendanceList[worldParameters->s - 1].currentTime) ? time : packedAttendanceList[worldParameters->s - 1].currentTime) + 1;
-
-            for (unsigned int i = 0; i < worldParameters->s; i++) {
-                museumAttendanceList[i] = packedAttendanceList[i].processId;
-            }
-            printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d, wchodzę\n", id, time, status.MPI_SOURCE);
-            museumAttendanceListUpdated = true;
-
-        } else if (status.MPI_TAG == HELP_REQ) {
-            HelpRequest helpRequest;
-            MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-            time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
-
-            HelpRequest response(-1, -1, ++time, -1);
-            MPI_Send(&response, 1, MPIHelpRequest::getInstance().getType(), helpRequest.processId, HELP_RESP, MPI_COMM_WORLD);
-
-        } else {
-            printf("Unexpected message when waiting for attendance list, I've received %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
-            throw "Unexpected message";
-        }
+        currentState->handleMessage(status);
     }
 }
 
