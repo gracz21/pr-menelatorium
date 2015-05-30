@@ -38,7 +38,6 @@ class Bum {
 
         void emptyDelayedEnterRequests();
         void hangAround();
-        void checkForIncommingMessages();
 
         void goToMuseum();
         void sendEnterRequests();
@@ -61,6 +60,11 @@ class Bum {
         void waitForOthersToExit();
         void addToEnterRequestsFilter(Request *enterRequests);
         void removeFromEnterRequests(Request *enterRequests);
+
+        void answerDontWantToEnterMuseum(MPI_Status &status);
+        void ignoreExitNotifications(MPI_Status &status);
+        void answerDontNeedNurse(MPI_Status &status);
+        void ignoreNurseReleaseNotification(MPI_Status &status);
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);

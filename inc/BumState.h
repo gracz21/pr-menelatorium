@@ -8,10 +8,6 @@ class Bum;
 class BumState {
     protected: 
         Bum *context;
-
-    public:
-        BumState(Bum *context);
-        void handleMessage(MPI_Status &status);
         virtual void handleEnterReq(MPI_Status &status) = 0;
         virtual void handleExitNotification(MPI_Status &status) = 0;
         virtual void handleEnterResp(MPI_Status &status) = 0;
@@ -20,6 +16,11 @@ class BumState {
         virtual void handleHelpReq(MPI_Status &status) = 0;
         virtual void handleHelpResp(MPI_Status &status) = 0;
         virtual void handleNurseReleaseNotification(MPI_Status &status) = 0;
+
+    public:
+        BumState(Bum *context);
+        void handleMessage(MPI_Status &status);
+        virtual ~BumState();
 };
 
 #endif

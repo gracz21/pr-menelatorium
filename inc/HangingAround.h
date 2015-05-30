@@ -6,9 +6,7 @@
 class Bum;
 
 class HangingAround: public BumState {
-    public:
-        HangingAround(Bum *context);
-
+    protected:
         void handleEnterReq(MPI_Status &status);
         void handleExitNotification(MPI_Status &status);
         void handleEnterResp(MPI_Status &status);
@@ -17,6 +15,9 @@ class HangingAround: public BumState {
         void handleHelpReq(MPI_Status &status);
         void handleHelpResp(MPI_Status &status);
         void handleNurseReleaseNotification(MPI_Status &status);
+
+    public:
+        HangingAround(Bum *context);
 };
 
 #endif

@@ -5,6 +5,10 @@ BumState::BumState(Bum *context) {
     this->context = context;
 }
 
+BumState::~BumState() {
+
+}
+
 void BumState::handleMessage(MPI_Status &status) {
     switch (status.MPI_TAG) {
         case ENTER_REQ:
