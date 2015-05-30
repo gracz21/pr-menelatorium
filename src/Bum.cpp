@@ -22,6 +22,7 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     this->worldParameters = worldParameters;
     this->time = time;
     this->bumsIds = bumsIds;
+    museumLocked = false;
 
     museumAttendanceList = new int[worldParameters->s];
     states["hanging_around"] = new HangingAround(this); 
@@ -118,7 +119,7 @@ void Bum::waitForEnterResponses() {
             remainingResponses--;
         }
 
-        if (remainingResponses == 0 && (status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
+        if (!museumLocked && remainingResponses == 0 && (status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
             canEnter = tryToEnterMuseum();
         }
     }
@@ -148,8 +149,15 @@ void Bum::waitForExpositionStart() {
 
 void Bum::sendAttendanceList() {
     Request attendanceListWrapper[worldParameters->s];
-    unsigned int i = 0;
 
+    for (unsigned int i = 0; i < worldParameters->m; i++) {
+        if (bumsIds[i] != id) {
+            int museumLocked = 1;
+            MPI_Send(&museumLocked, MPI_INT, 1, bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
+        }
+    }
+
+    unsigned int i = 0;
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
@@ -376,6 +384,8 @@ void Bum::ignoreExitNotifications(MPI_Status &status) {
     Request exitNotifications[worldParameters->s];
     MPI_Recv(exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     time = ((time > exitNotifications[worldParameters->s - 1].currentTime) ? time : exitNotifications[worldParameters->s - 1].currentTime) + 1;
+
+    museumLocked = false;
 }
 
 void Bum::answerDontNeedNurse(MPI_Status &status) {
@@ -410,6 +420,8 @@ void Bum::saveExitNotification(MPI_Status &status) {
 
     addToEnterRequestsFilter(exitNotifications);
     removeFromEnterRequests(exitNotifications);
+
+    museumLocked = false;
 }
 
 void Bum::saveMuseumAttendanceList(MPI_Status &status) {

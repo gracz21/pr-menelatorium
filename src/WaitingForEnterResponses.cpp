@@ -40,3 +40,7 @@ void WaitingForEnterResponses::handleHelpResp(MPI_Status &status) {
 void WaitingForEnterResponses::handleNurseReleaseNotification(MPI_Status &status) {
     context->ignoreNurseReleaseNotification(status);
 }
+
+void WaitingForEnterResponses::handleMuseumLock(MPI_Status &status) {
+    context->museumLocked = true;
+}

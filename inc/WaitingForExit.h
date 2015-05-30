@@ -15,6 +15,7 @@ class WaitingForExit: public BumState {
         void handleHelpReq(MPI_Status &status);
         void handleHelpResp(MPI_Status &status);
         void handleNurseReleaseNotification(MPI_Status &status);
+        void handleMuseumLock(MPI_Status &status);
 
     public:
         WaitingForExit(Bum *context);

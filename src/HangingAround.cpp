@@ -42,3 +42,7 @@ void HangingAround::handleHelpResp(MPI_Status &status) {
 void HangingAround::handleNurseReleaseNotification(MPI_Status &status) {
     context->ignoreNurseReleaseNotification(status);
 }
+
+void HangingAround::handleMuseumLock(MPI_Status &status) {
+    context->museumLocked = true;
+}

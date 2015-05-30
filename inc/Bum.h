@@ -31,6 +31,7 @@ class Bum {
         std::set<HelpRequest> helpRequests;
         std::set<HelpRequest> helpRequestsFilter;
         std::list<Request> exitNotifications;
+        bool museumLocked;
 
         const HelpRequest *myHelpRequest;
         const Request *myEnterRequest;

@@ -35,5 +35,8 @@ void BumState::handleMessage(MPI_Status &status) {
         case NURSE_RELEASE_NOTIFICATION:
             this->handleNurseReleaseNotification(status);
             break;
+        case MUSEUM_LOCK:
+            this->handleMuseumLock(status);
+            break;
     }
 }

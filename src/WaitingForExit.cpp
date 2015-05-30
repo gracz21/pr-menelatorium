@@ -42,3 +42,8 @@ void WaitingForExit::handleHelpResp(MPI_Status &status) {
 void WaitingForExit::handleNurseReleaseNotification(MPI_Status &status) {
     context->ignoreNurseReleaseNotification(status);
 }
+
+void WaitingForExit::handleMuseumLock(MPI_Status &status) {
+    printf("Unexpected museum lock when waiting for exit\n");
+    throw "";
+}

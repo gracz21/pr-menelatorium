@@ -46,3 +46,8 @@ void WaitingForHelp::handleHelpResp(MPI_Status &status) {
 void WaitingForHelp::handleNurseReleaseNotification(MPI_Status &status) {
     context->saveNurseRelease(status);
 }
+
+void WaitingForHelp::handleMuseumLock(MPI_Status &status) {
+    printf("Unexpected museum lock when waiting for help\n");
+    throw "";
+}

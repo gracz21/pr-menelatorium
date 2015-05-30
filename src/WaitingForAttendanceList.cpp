@@ -43,3 +43,7 @@ void WaitingForAttendanceList::handleNurseReleaseNotification(MPI_Status &status
     printf("Unexpected nurse release notification when waiting for attendance list\n");
     throw "";
 }
+
+void WaitingForAttendanceList::handleMuseumLock(MPI_Status &status) {
+    context->museumLocked = true;
+}
