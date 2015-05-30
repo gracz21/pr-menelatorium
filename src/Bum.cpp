@@ -23,7 +23,6 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     this->time = time;
     this->bumsIds = bumsIds;
 
-    currentState = NULL;
     museumAttendanceList = new int[worldParameters->s];
     states["hanging_around"] = new HangingAround(this); 
     states["waiting_for_enter_responses"] = new WaitingForEnterResponses(this); 
@@ -50,8 +49,6 @@ void Bum::run() {
 }
 
 void Bum::hangAround() {
-    currentState = states["hanging_around"];
-
     bool wantsToGoToMuseum = false;
     while (!wantsToGoToMuseum) {
         printf("Proces: %d, czas: %d - włóczę się po mieście\n", id, time);
@@ -63,7 +60,7 @@ void Bum::hangAround() {
 
         if (messageAvailable) {
             printf("Proces: %d, czas: %d - włócząc się po mieście odebrałem wiadomość typu %d od %d\n", id, time, status.MPI_TAG, status.MPI_SOURCE);
-            currentState->handleMessage(status);
+            states["hanging_around"]->handleMessage(status);
         }
 
         wantsToGoToMuseum = ((rand() % 10) <= 4);
@@ -109,14 +106,13 @@ void Bum::sendEnterRequests() {
 void Bum::waitForEnterResponses() {
     int remainingResponses = worldParameters->m - 1;
     bool canEnter = (remainingResponses == 0);
-    currentState = states["waiting_for_enter_responses"];
 
     printf("Proces: %d, czas: %d - Czekam na potwierdzenia odebrania mojego żądania wejścia do muzeum\n", id, time);
     while (!canEnter) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        currentState->handleMessage(status);
+        states["waiting_for_enter_responses"]->handleMessage(status);
 
         if (status.MPI_TAG == ENTER_RESP) {
             remainingResponses--;
@@ -169,14 +165,12 @@ void Bum::sendAttendanceList() {
 }
 
 void Bum::waitForAttendanceList() {
-    currentState = states["waiting_for_attendance_list"];
-
     printf("Proces: %d, czas: %d - Czekam na listę obecności\n", id, time);
     while (!museumAttendanceListUpdated) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        currentState->handleMessage(status);
+        states["waiting_for_attendance_list"]->handleMessage(status);
     }
 }
 
@@ -185,7 +179,7 @@ void Bum::participateInExposition() {
     printf("Proces: %d, czas: %d - Jestem na ekspozycji\n", id, time);
     time++;
 
-    bool gotDrunk = ((rand() % 10) <= 4);
+    bool gotDrunk = false && ((rand() % 10) <= 4);
 
     if (gotDrunk) {
         printf("Proces: %d, czas: %d - Upiłem się i czekam na pielęgniarzy\n", id, time);
@@ -228,13 +222,12 @@ void Bum::callForHelp() {
 void Bum::waitForHelp() {
     unsigned int remainingResponsesNumber = worldParameters->s - 1;
     bool served = (remainingResponsesNumber == 0);
-    currentState = states["waiting_for_help"];
     
     while (!served) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        currentState->handleMessage(status);
+        states["waiting_for_help"]->handleMessage(status);
 
         if (status.MPI_TAG == HELP_RESP) {
             remainingResponsesNumber--;
@@ -333,13 +326,12 @@ void Bum::notifyAboutExit() {
 void Bum::waitForOthersToExit() {
     printf("Proces: %d, czas: %d - Czekam na innych aż wyjdą\n", id, time);
     bool canExit = (worldParameters->s == 1);
-    currentState = states["waiting_for_exit"];
 
     while (!canExit) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
-        currentState->handleMessage(status);
+        states["waiting_for_exit"]->handleMessage(status);
 
         canExit = (exitNotifications.size() == (worldParameters->s - 1));
     }

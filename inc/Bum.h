@@ -25,7 +25,6 @@ class Bum {
         unsigned short weight;
         int time;
         std::map<std::string, BumState*> states;
-        BumState* currentState;
         const Parameters *worldParameters;
         std::set<Request> enterRequests;
         std::set<Request> enterRequestsFilter;
