@@ -64,9 +64,13 @@ class Bum {
         void removeFromEnterRequests(Request *enterRequests);
 
         void answerDontWantToEnterMuseum(MPI_Status &status);
+        void answerWantToEnterMuseum(MPI_Status &status);
         void ignoreExitNotifications(MPI_Status &status);
         void answerDontNeedNurse(MPI_Status &status);
         void ignoreNurseReleaseNotification(MPI_Status &status);
+        void saveEnterRequest(MPI_Status &status);
+        void saveExitNotification(MPI_Status &status);
+        void saveMuseumAttendanceList(MPI_Status &status);
     
     public:
         Bum(int id, unsigned short weight, const Parameters *worldParameters, int* bumsIds, int time = 0);

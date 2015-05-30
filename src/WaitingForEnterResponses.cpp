@@ -8,26 +8,24 @@
 WaitingForEnterResponses::WaitingForEnterResponses(Bum *context): BumState(context) {}
 
 void WaitingForEnterResponses::handleEnterReq(MPI_Status &status) {
-    context->answerDontWantToEnterMuseum(status);
+    context->answerWantToEnterMuseum(status);
 }
 
 void WaitingForEnterResponses::handleExitNotification(MPI_Status &status) {
-    context->ignoreExitNotifications(status);
+    context->saveExitNotification(status);
 }
 
 void WaitingForEnterResponses::handleEnterResp(MPI_Status &status) {
-    printf("Unexpected enter response when hanging around\n");
-    throw "Unexpected message";
+    context->saveEnterRequest(status);
 }
 
 void WaitingForEnterResponses::handleExpoStart(MPI_Status &status) {
-    printf("Unexpected exposition start notification when hanging around\n");
-    throw "Unexpected message";
+    context->saveMuseumAttendanceList(status);
 }
 
 void WaitingForEnterResponses::handleExpoStartConfirmation(MPI_Status &status) {
-    printf("Unexpected expo start confirmation when hanging around\n");
-    throw "Unexpected message";
+    printf("Unexpected expo start confirmation when waiting for enter responses\n");
+    throw "Unexpected expo start confirmation when waiting for enter responses";
 }
 
 void WaitingForEnterResponses::handleHelpReq(MPI_Status &status) {
@@ -35,8 +33,8 @@ void WaitingForEnterResponses::handleHelpReq(MPI_Status &status) {
 }
 
 void WaitingForEnterResponses::handleHelpResp(MPI_Status &status) {
-    printf("Unexpected help response when hanging around\n");
-    throw "Unexpected message";
+    printf("Unexpected help response when waiting for enter responses\n");
+    throw "Unexpected expo start confirmation when waiting for enter responses";
 }
 
 void WaitingForEnterResponses::handleNurseReleaseNotification(MPI_Status &status) {
