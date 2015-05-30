@@ -270,7 +270,7 @@ void Bum::waitForAttendanceList() {
             museumAttendanceListUpdated = true;
 
         } else {
-            printf("Unexpected message when waiting for attendance list\n");
+            printf("Unexpected message when waiting for attendance list, I've received %d from %d\n", status.MPI_TAG, status.MPI_SOURCE);
             throw "Unexpected message";
         }
     }
@@ -364,6 +364,13 @@ void Bum::waitForHelp() {
 
             helpRequestsFilter.insert(helpRequest);
             helpRequests.erase(helpRequest);
+        } else if ((id == museumAttendanceList[worldParameters->s - 1]) && (status.MPI_TAG == EXIT_NOTIFICATION)) {
+            Request exitNotification;
+            MPI_Recv(&exitNotification, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+            time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
+
+            exitNotifications.push_back(exitNotification);
+
         } else {
             printf("Unexpected message from %d when waiting for help: %d %d\n", status.MPI_SOURCE, status.MPI_TAG, id);
             throw "Unexpected message";
