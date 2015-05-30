@@ -98,6 +98,7 @@ void Bum::handleMessageWhenIdle(MPI_Status &status) {
         time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
 
     } else {
+        printf("Unexpected message when idle\n");
         throw "Unexpected message";
     }
 }
@@ -188,6 +189,7 @@ void Bum::waitForEnterResponses() {
             time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
 
         } else {
+            printf("Unexpected message from %d when waiting for enter responses: %d %d\n", status.MPI_SOURCE, status.MPI_TAG, id);
             throw "Unexpected message";
         }
 
@@ -224,7 +226,7 @@ void Bum::sendAttendanceList() {
     unsigned int i = 0;
 
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
-    for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++) {
+    for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
         attendanceListWrapper[i] = *it;
     }
@@ -264,9 +266,11 @@ void Bum::waitForAttendanceList() {
             for (unsigned int i = 0; i < worldParameters->s; i++) {
                 museumAttendanceList[i] = packedAttendanceList[i].processId;
             }
+            printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d, wchodzę\n", id, time, status.MPI_SOURCE);
             museumAttendanceListUpdated = true;
 
         } else {
+            printf("Unexpected message when waiting for attendance list\n");
             throw "Unexpected message";
         }
     }
@@ -361,6 +365,7 @@ void Bum::waitForHelp() {
             helpRequestsFilter.insert(helpRequest);
             helpRequests.erase(helpRequest);
         } else {
+            printf("Unexpected message from %d when waiting for help: %d %d\n", status.MPI_SOURCE, status.MPI_TAG, id);
             throw "Unexpected message";
         }
 
@@ -476,6 +481,20 @@ void Bum::waitForOthersToExit() {
             MPI_Recv(&helpRequest, 1, MPIHelpRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             time = ((time > helpRequest.currentTime) ? time : helpRequest.currentTime) + 1;
         } else {
+            printf("Unexpected message from %d when waiting for bums to exit museum: %d %d\n", status.MPI_SOURCE, status.MPI_TAG, id);
+
+
+
+            Request packedAttendanceList[worldParameters->s];
+            MPI_Recv(packedAttendanceList, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+
+            for (unsigned i = 0; i < worldParameters->s; i++) {
+                printf("%d\n", packedAttendanceList[i].processId);                
+            }
+
+
+
+
             throw "Unexpected message";
         }
         canExit = (exitNotifications.size() == (worldParameters->m - 1));
