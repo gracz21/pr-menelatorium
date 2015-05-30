@@ -26,6 +26,7 @@ class Bum {
         const Request *myEnterRequest;
         int *museumAttendanceList;
         int *bumsIds;
+        bool museumAttendanceListUpdated;
 
         void emptyDelayedEnterRequests();
         void hangAround();
