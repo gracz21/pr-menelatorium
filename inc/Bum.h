@@ -73,7 +73,6 @@ class Bum {
         void saveEnterRequest(MPI_Status &status);
         void saveExitNotification(MPI_Status &status);
         void saveMuseumAttendanceList(MPI_Status &status);
-        void delayEnterReq(MPI_Status &status);
         void saveHelpReq(MPI_Status &status);
         void saveHelpResp(MPI_Status &status);
         void saveNurseRelease(MPI_Status &status);

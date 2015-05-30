@@ -8,7 +8,7 @@
 WaitingForExit::WaitingForExit(Bum *context): BumState(context) {}
 
 void WaitingForExit::handleEnterReq(MPI_Status &status) {
-    context->delayEnterReq(status);
+    context->answerWantToEnterMuseum(status);
 }
 
 void WaitingForExit::handleExitNotification(MPI_Status &status) {

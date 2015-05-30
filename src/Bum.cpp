@@ -135,9 +135,9 @@ bool Bum::tryToEnterMuseum() {
 }
 
 void Bum::waitForExpositionStart() {
-    
     printf("Proces: %d, czas: %d - Czekam na rozpoczęcie ekspozycji\n", id, time);
     unsigned int myPosition = 0;
+
     for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
     if (myPosition == worldParameters->s - 1) {
         sendAttendanceList(); 
@@ -319,7 +319,7 @@ void Bum::notifyAboutExit() {
     exitNotification.currentTime = ++time;
 
     MPI_Request status;
-    MPI_Isend(&exitNotification, 1, MPIRequest::getInstance().getType(), museumAttendanceList[worldParameters->s - 1], EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
+    MPI_Isend(&exitNotification, 1, MPIRequest::getInstance().getType(), museumAttendanceList[worldParameters->s - 1], SINGLE_EXIT_NOTIFICATION, MPI_COMM_WORLD, &status);
     MPI_Request_free(&status);
 }
 
@@ -436,14 +436,6 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     }
     printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d, wchodzę\n", id, time, status.MPI_SOURCE);
     museumAttendanceListUpdated = true;
-}
-
-void Bum::delayEnterReq(MPI_Status &status) {
-    Request enterRequest;
-    MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
-
-    delayedEnterRequests.push_back(enterRequest);
 }
 
 void Bum::saveHelpReq(MPI_Status &status) {
