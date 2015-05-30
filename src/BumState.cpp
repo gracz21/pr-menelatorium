@@ -38,5 +38,8 @@ void BumState::handleMessage(MPI_Status &status) {
         case MUSEUM_LOCK:
             this->handleMuseumLock(status);
             break;
+        case SINGLE_EXIT_NOTIFICATION:
+            this->handleSingleExit(status);
+            break;
     }
 }

@@ -12,7 +12,8 @@ void WaitingForExit::handleEnterReq(MPI_Status &status) {
 }
 
 void WaitingForExit::handleExitNotification(MPI_Status &status) {
-    context->delayExitNotification(status);
+    printf("Unexpected exit notification when waiting for exit\n");
+    throw "";
 }
 
 void WaitingForExit::handleEnterResp(MPI_Status &status) {
@@ -46,4 +47,8 @@ void WaitingForExit::handleNurseReleaseNotification(MPI_Status &status) {
 void WaitingForExit::handleMuseumLock(MPI_Status &status) {
     printf("Unexpected museum lock when waiting for exit\n");
     throw "";
+}
+
+void WaitingForExit::handleSingleExit(MPI_Status &status) {
+    context->delayExitNotification(status);
 }

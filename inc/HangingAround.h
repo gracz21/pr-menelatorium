@@ -16,6 +16,7 @@ class HangingAround: public BumState {
         void handleHelpResp(MPI_Status &status);
         void handleNurseReleaseNotification(MPI_Status &status);
         void handleMuseumLock(MPI_Status &status);
+        void handleSingleExit(MPI_Status &status);
 
     public:
         HangingAround(Bum *context);

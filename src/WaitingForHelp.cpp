@@ -12,12 +12,8 @@ void WaitingForHelp::handleEnterReq(MPI_Status &status) {
 }
 
 void WaitingForHelp::handleExitNotification(MPI_Status &status) {
-    if ((context->id == context->museumAttendanceList[context->worldParameters->s - 1])) {
-        context->saveExitNotification(status);
-    } else {
-        printf("Unexpected exit notification whene waiting for help\n");
-        throw "";
-    }
+    printf("Unexpected exit notification whene waiting for help\n");
+    throw "";
 }
 
 void WaitingForHelp::handleEnterResp(MPI_Status &status) {
@@ -50,4 +46,13 @@ void WaitingForHelp::handleNurseReleaseNotification(MPI_Status &status) {
 void WaitingForHelp::handleMuseumLock(MPI_Status &status) {
     printf("Unexpected museum lock when waiting for help\n");
     throw "";
+}
+
+void WaitingForHelp::handleSingleExit(MPI_Status &status) {
+    if ((context->id == context->museumAttendanceList[context->worldParameters->s - 1])) {
+        context->delayExitNotification(status);
+    } else {
+        printf("Unexpected single exit notification whene waiting for help\n");
+        throw "";
+    }
 }

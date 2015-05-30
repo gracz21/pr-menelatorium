@@ -17,6 +17,7 @@ class BumState {
         virtual void handleHelpResp(MPI_Status &status) = 0;
         virtual void handleNurseReleaseNotification(MPI_Status &status) = 0;
         virtual void handleMuseumLock(MPI_Status &status) = 0;
+        virtual void handleSingleExit(MPI_Status &status) = 0;
 
     public:
         BumState(Bum *context);

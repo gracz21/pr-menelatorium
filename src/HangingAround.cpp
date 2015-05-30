@@ -46,3 +46,8 @@ void HangingAround::handleNurseReleaseNotification(MPI_Status &status) {
 void HangingAround::handleMuseumLock(MPI_Status &status) {
     context->saveMuseumLock(status);
 }
+
+void HangingAround::handleSingleExit(MPI_Status &status) {
+    printf("Unexpected single exit when hanging around\n");
+    throw "Unexpected message";
+}

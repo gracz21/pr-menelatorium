@@ -44,3 +44,8 @@ void WaitingForEnterResponses::handleNurseReleaseNotification(MPI_Status &status
 void WaitingForEnterResponses::handleMuseumLock(MPI_Status &status) {
     context->saveMuseumLock(status);
 }
+
+void WaitingForEnterResponses::handleSingleExit(MPI_Status &status) {
+    printf("Unexpected single exit when waiting for enter responses\n");
+    throw "Unexpected message";
+}

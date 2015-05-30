@@ -47,3 +47,8 @@ void WaitingForAttendanceList::handleNurseReleaseNotification(MPI_Status &status
 void WaitingForAttendanceList::handleMuseumLock(MPI_Status &status) {
     context->saveMuseumLock(status);
 }
+
+void WaitingForAttendanceList::handleSingleExit(MPI_Status &status) {
+    printf("Unexpected single exit when waiting for attendance list\n");
+    throw "Unexpected message";
+}
