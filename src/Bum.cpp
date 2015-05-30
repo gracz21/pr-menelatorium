@@ -302,7 +302,6 @@ void Bum::insertHelpRequest(HelpRequest &helpRequest) {
 
 void Bum::insertEnterRequest(Request &enterRequest) {
     if (enterRequestsFilter.find(enterRequest) == enterRequestsFilter.end()) {
-        printf("%d\n", enterRequest.processId);
         enterRequests.insert(enterRequest);
     }
 }
