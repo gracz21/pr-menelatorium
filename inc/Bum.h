@@ -4,6 +4,7 @@
 #include <set>
 #include <list>
 #include <map>
+#include <string>
 #include <mpi.h>
 
 #include "Request.h"
@@ -13,12 +14,12 @@
 class BumState;
 
 class Bum {
-    friend class BumState;
+    friend class HangingAround;
     private:
         int id;
         unsigned short weight;
         int time;
-        std::map<char*, BumState*> states;
+        std::map<std::string, BumState*> states;
         BumState* currentState;
         const Parameters *worldParameters;
         std::set<Request> enterRequests;

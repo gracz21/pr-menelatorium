@@ -8,6 +8,7 @@
 #include "../inc/Request.h"
 #include "../inc/MPIRequest.h"
 #include "../inc/MPIHelpRequest.h"
+#include "../inc/HangingAround.h"
 
 using namespace std;
 
@@ -18,11 +19,14 @@ Bum::Bum(int id, unsigned short weight, const Parameters *worldParameters, int *
     this->time = time;
     this->bumsIds = bumsIds;
 
+    currentState = NULL;
     museumAttendanceList = new int[worldParameters->s];
+    states["hanging_around"] = new HangingAround(this); 
 }
 
 Bum::~Bum() {
     delete [] museumAttendanceList;
+    delete states["hanging_around"];
 }
 
 void Bum::run() {
