@@ -26,10 +26,11 @@ Bum::~Bum() {
 }
 
 void Bum::run() {
+    while (true) {
     emptyDelayedEnterRequests();
     hangAround();
     goToMuseum();
-    participateInExposition();
+    participateInExposition(); }
 }
 
 void Bum::emptyDelayedEnterRequests() {
@@ -277,6 +278,7 @@ void Bum::waitForAttendanceList() {
 }
 
 void Bum::participateInExposition() {
+    exitNotifications.clear();
     printf("Proces: %d, czas: %d - Jestem na ekspozycji\n", id, time);
     time++;
 
@@ -289,7 +291,6 @@ void Bum::participateInExposition() {
         printf("Proces: %d, czas: %d - Otrzymałem pomoc od pielęgniarzy\n", id, time);
     }
 
-    exitNotifications.clear();
     leaveMuseum();
 }
 
@@ -504,7 +505,7 @@ void Bum::waitForOthersToExit() {
 
             throw "Unexpected message";
         }
-        canExit = (exitNotifications.size() == (worldParameters->m - 1));
+        canExit = (exitNotifications.size() == (worldParameters->s - 1));
     }
 
     printf("Proces: %d, czas: %d - Informuję o opuszczeniu muzeum\n", id, time);
