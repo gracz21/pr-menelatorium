@@ -6,6 +6,8 @@
 #include "../inc/Init.h"
 #include "../inc/Bum.h"
 #include "../inc/MuseumService.h"
+#include "../inc/MPIRequest.h"
+#include "../inc/MPIHelpRequest.h"
 
 using namespace std;
 
@@ -35,6 +37,9 @@ int main(int argc, char** argv) {
             cout << "Parametry nie spelniaja zalozen zadania!";
         }
     }
+
+    MPI_Type_free(&(MPIRequest::getInstance().getType()));
+    MPI_Type_free(&(MPIHelpRequest::getInstance().getType()));
 
     MPI_Finalize();
 
