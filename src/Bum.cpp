@@ -355,15 +355,15 @@ void Bum::waitForOthersToExit() {
     }
 }
 
-void Bum::addToEnterRequestsFilter(Request *enterRequests) {
+void Bum::addToEnterRequestsFilter(Request *requestsToFiler) {
     for (unsigned int i = 0; i < worldParameters->s; i++) {
-        enterRequestsFilter.insert(enterRequests[i]);
+        enterRequestsFilter.insert(requestsToFiler[i]);
     }
 }
 
-void Bum::removeFromEnterRequests(Request *enterRequests) {
+void Bum::removeFromEnterRequests(Request *requestsToRemove) {
     for (unsigned int i = 0; i < worldParameters->s; i++) {
-        this->enterRequests.erase(enterRequests[i]);
+        enterRequests.erase(requestsToRemove[i]);
     }
 }
 
@@ -381,10 +381,10 @@ void Bum::answerWantToEnterMuseum(MPI_Status &status) {
     MPI_Recv(&enterRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     time = ((time > enterRequest.currentTime) ? time : enterRequest.currentTime) + 1;
 
-    insertEnterRequest(enterRequest);  
-    Request response = *myEnterRequest;
-    response.currentTime = time;
+    insertEnterRequest(enterRequest); 
 
+    Request response = *myEnterRequest;
+    response.currentTime = ++time;
     MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
 }
 
