@@ -37,7 +37,7 @@ class Bum {
         const Request *myEnterRequest;
         int *museumAttendanceList;
         int *bumsIds;
-        bool museumAttendanceListUpdated;
+        bool museumAttendanceListReceived;
 
         void hangAround();
 

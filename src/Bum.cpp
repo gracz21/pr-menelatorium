@@ -70,7 +70,7 @@ void Bum::hangAround() {
 
 void Bum::goToMuseum() {
     printf("Proces: %d, czas: %d - chcę wejść do muzeum\n", id, time);
-    museumAttendanceListUpdated = false;
+    museumAttendanceListReceived = false;
 
     sendEnterRequests();
     waitForEnterResponses();
@@ -182,7 +182,7 @@ void Bum::sendAttendanceList() {
 
 void Bum::waitForAttendanceList() {
     printf("Proces: %d, czas: %d - Czekam na listę obecności\n", id, time);
-    while (!museumAttendanceListUpdated) {
+    while (!museumAttendanceListReceived) {
         MPI_Status status;
         MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 
@@ -441,8 +441,8 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     for (unsigned int i = 0; i < worldParameters->s; i++) {
         museumAttendanceList[i] = packedAttendanceList[i].processId;
     }
-    printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d, wchodzę\n", id, time, status.MPI_SOURCE);
-    museumAttendanceListUpdated = true;
+    printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d\n", id, time, status.MPI_SOURCE);
+    museumAttendanceListReceived = true;
     museumLocked = false;
 }
 
