@@ -153,7 +153,7 @@ void Bum::sendAttendanceList() {
     unsigned int i = 0;
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
-        attendanceListLookup.insert(*it).processId;
+        attendanceListLookup.insert((*it).processId);
         attendanceListWrapper[i] = *it;
         printf("Proces: %d, czas: %d - Element listy %d\n", id, time, (*it).processId);
     }
