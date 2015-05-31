@@ -145,9 +145,7 @@ void Bum::waitForExpositionStart() {
     for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++) {
         printf("Proces: %d, czas: %d - Element listy obecności %d\n", id, time, (*it).processId);
     }
-    if (myPosition == 0) {
-        printf("Moja lista obecności jest pusta\n");
-    }
+
     if (myPosition == worldParameters->s - 1) {
         sendAttendanceList(); 
     } else {
@@ -158,15 +156,17 @@ void Bum::waitForExpositionStart() {
 void Bum::sendAttendanceList() {
     Request attendanceListWrapper[worldParameters->s];
 
-    for (unsigned int i = 0; i < worldParameters->m; i++) {
+    printf("Proces: %d, czas: %d - Zakładam blokadę na muzeum\n", id, time);
+    unsigned int i = 0;
+    for (; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             Request lock(-1, -1, ++time);
             MPI_Send(&lock, 1, MPIRequest::getInstance().getType(),  bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
         }
     }
 
-    unsigned int i = 0;
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
+    i = 0;
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
         attendanceListWrapper[i] = *it;
@@ -353,6 +353,7 @@ void Bum::waitForOthersToExit() {
             MPI_Send(notificationsToSend, worldParameters->s, MPIRequest::getInstance().getType(), bumsIds[i], EXIT_NOTIFICATION,  MPI_COMM_WORLD);
         }
     }
+    museumLocked = false;
 }
 
 void Bum::addToEnterRequestsFilter(Request *requestsToFiler) {
@@ -443,7 +444,6 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     }
     printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d\n", id, time, status.MPI_SOURCE);
     museumAttendanceListReceived = true;
-    museumLocked = false;
 }
 
 void Bum::saveHelpReq(MPI_Status &status) {
