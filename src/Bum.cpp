@@ -117,12 +117,8 @@ void Bum::waitForEnterResponses() {
             remainingResponses--;
         }
 
-        if (!museumLocked && remainingResponses == 0 && (status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
+        if (!museumLocked && remainingResponses == 0 && (status.MPI_TAG == EXPO_START || status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
             canEnter = tryToEnterMuseum();
-        }
-
-        if (museumLocked && remainingResponses == 0) {
-            printf("Proces: %d, czas: %d - muzeum zablokowane\n", id, time);
         }
     }
     printf("Proces: %d, czas: %d - Mogę wejść do muzeum\n", id, time);
@@ -131,9 +127,7 @@ void Bum::waitForEnterResponses() {
 bool Bum::tryToEnterMuseum() {
     unsigned int myPosition = 0;
 
-    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++) {
-        myPosition++;
-    }
+    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
 
     return myPosition <= (worldParameters->s - 1);
 }
@@ -142,9 +136,7 @@ void Bum::waitForExpositionStart() {
     printf("Proces: %d, czas: %d - Czekam na rozpoczęcie ekspozycji\n", id, time);
     unsigned int myPosition = 0;
 
-    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++) {
-        printf("Proces: %d, czas: %d - Element listy obecności %d\n", id, time, (*it).processId);
-    }
+    for (set<Request>::iterator it = enterRequests.begin(); (*it).processId != id; it++, myPosition++);
 
     if (myPosition == worldParameters->s - 1) {
         sendAttendanceList(); 
@@ -338,6 +330,7 @@ void Bum::waitForOthersToExit() {
             MPI_Send(notificationsToSend, worldParameters->s, MPIRequest::getInstance().getType(), bumsIds[i], EXIT_NOTIFICATION,  MPI_COMM_WORLD);
         }
     }
+    printf("Proces: %d, czas: %d - Poinformowałem resztę o opuszczeniu muzeum\n", id, time);
     museumLocked = false;
 }
 
