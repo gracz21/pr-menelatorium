@@ -3,10 +3,12 @@
 
 class MuseumService {
 	private:
+        int time;
 		void startExposition();
 		void endExposition();
 
 	public:
+		MuseumService();
 		void run();
 };
 
