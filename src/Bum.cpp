@@ -151,6 +151,7 @@ void Bum::waitForExpositionStart() {
     } else {
         waitForAttendanceList();
     }
+    museumLocked = true;
 }
 
 void Bum::sendAttendanceList() {
@@ -218,11 +219,9 @@ void Bum::callForHelp() {
 
     for (unsigned int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
-            time++;
-
             helpRequestBuffers[helpRequestsIterator].processId = id;
             helpRequestBuffers[helpRequestsIterator].timestamp = myHelpRequest->timestamp;
-            helpRequestBuffers[helpRequestsIterator].currentTime = time;
+            helpRequestBuffers[helpRequestsIterator].currentTime = ++time;
             helpRequestBuffers[helpRequestsIterator].weight = weight;
 
             MPI_Request status;
@@ -279,11 +278,9 @@ void Bum::releaseNurses() {
 
     for (unsigned int i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
-            time++;
-
             notifications[notificationsIterator].processId = id;
             notifications[notificationsIterator].timestamp = myHelpRequest->timestamp;
-            notifications[notificationsIterator].currentTime = time;
+            notifications[notificationsIterator].currentTime = ++time;
             notifications[notificationsIterator].weight = weight;
 
             MPI_Request status;
@@ -363,6 +360,8 @@ void Bum::answerDontWantToEnterMuseum(MPI_Status &status) {
 
     Request response(-1, -1, ++time);
     MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
+
+    printf("Proces: %d, czas: %d - Mówię procesowi %d, że nie chcę wejść do muzeum\n", id, time, status.MPI_SOURCE);
 }
 
 void Bum::answerWantToEnterMuseum(MPI_Status &status) {
@@ -375,12 +374,16 @@ void Bum::answerWantToEnterMuseum(MPI_Status &status) {
     Request response = *myEnterRequest;
     response.currentTime = ++time;
     MPI_Send(&response, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, ENTER_RESP, MPI_COMM_WORLD);
+
+    printf("Proces: %d, czas: %d - Mówię procesowi %d, że chcę wejść do muzeum\n", id, time, status.MPI_SOURCE);
 }
 
 void Bum::ignoreExitNotifications(MPI_Status &status) {
     Request exitNotifications[worldParameters->s];
     MPI_Recv(exitNotifications, worldParameters->s, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     time = ((time > exitNotifications[worldParameters->s - 1].currentTime) ? time : exitNotifications[worldParameters->s - 1].currentTime) + 1;
+
+    printf("Proces: %d, czas: %d - Otrzymałem informację od %d, że mogę zdjąć blokadę\n", id, time, status.MPI_SOURCE);
 
     museumLocked = false;
 }
@@ -407,6 +410,9 @@ void Bum::saveEnterRequest(MPI_Status &status) {
 
     if (enterRequest.processId != -1) {
         insertEnterRequest(enterRequest);  
+        printf("Proces: %d, czas: %d - Otrzymałem żądanie wejścia do muzeum od %d\n", id, time, status.MPI_SOURCE);
+    } else {
+        printf("Proces: %d, czas: %d - %d nie chce wejść do muzeum\n", id, time, status.MPI_SOURCE);
     }
 }
 
@@ -418,6 +424,7 @@ void Bum::saveExitNotification(MPI_Status &status) {
     addToEnterRequestsFilter(exitNotifications);
     removeFromEnterRequests(exitNotifications);
 
+    printf("Proces: %d, czas: %d - Proces %d mówi, że mogę zdjąć blokadę\n", id, time, status.MPI_SOURCE);
     museumLocked = false;
 }
 
@@ -432,6 +439,7 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     }
     printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d\n", id, time, status.MPI_SOURCE);
     museumAttendanceListReceived = true;
+    museumLocked = false;
 }
 
 void Bum::saveHelpReq(MPI_Status &status) {
@@ -470,6 +478,7 @@ void Bum::delayExitNotification(MPI_Status &status) {
     time = ((time > exitNotification.currentTime) ? time : exitNotification.currentTime) + 1;
 
     exitNotifications.push_back(exitNotification);
+    printf("Proces: %d, czas: %d - Proces %d informuje mnie, że chce wyjść\n", id, time, status.MPI_SOURCE);
 }
 
 void Bum::saveMuseumLock(MPI_Status &status) {
@@ -478,6 +487,7 @@ void Bum::saveMuseumLock(MPI_Status &status) {
     time = ((time > lock.currentTime) ? time : lock.currentTime) + 1;
 
     museumLocked = true;
+    printf("Proces: %d, czas: %d - Proces %d każe założyć blokadę muzeum\n", id, time, status.MPI_SOURCE);
 }
 
 void Bum::insertHelpRequest(HelpRequest &helpRequest) {
