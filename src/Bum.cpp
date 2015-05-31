@@ -163,6 +163,7 @@ void Bum::sendAttendanceList() {
     for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
         museumAttendanceList[i] = (*it).processId;
         attendanceListWrapper[i] = *it;
+        printf("Proces: %d, czas: %d - Element listy %d\n", id, time, (*it).processId);
     }
 
     for (i = 0; i < worldParameters->s; i++) {
@@ -432,7 +433,6 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     }
     printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d\n", id, time, status.MPI_SOURCE);
     museumAttendanceListReceived = true;
-    museumLocked = false;
 }
 
 void Bum::saveHelpReq(MPI_Status &status) {
