@@ -296,18 +296,6 @@ void Bum::releaseNurses() {
     }
 }
 
-void Bum::insertHelpRequest(HelpRequest &helpRequest) {
-    if (helpRequestsFilter.find(helpRequest) == helpRequestsFilter.end()) {
-        helpRequests.insert(helpRequest);
-    }
-}
-
-void Bum::insertEnterRequest(Request &enterRequest) {
-    if (enterRequestsFilter.find(enterRequest) == enterRequestsFilter.end()) {
-        enterRequests.insert(enterRequest);
-    }
-}
-
 void Bum::leaveMuseum() {
     printf("Proces: %d, czas: %d - Zamierzam opuścić muzeum\n", id, time);
     if (museumAttendanceList[worldParameters->s - 1] == id) {
@@ -490,4 +478,16 @@ void Bum::saveMuseumLock(MPI_Status &status) {
     time = ((time > lock.currentTime) ? time : lock.currentTime) + 1;
 
     museumLocked = true;
+}
+
+void Bum::insertHelpRequest(HelpRequest &helpRequest) {
+    if (helpRequestsFilter.find(helpRequest) == helpRequestsFilter.end()) {
+        helpRequests.insert(helpRequest);
+    }
+}
+
+void Bum::insertEnterRequest(Request &enterRequest) {
+    if (enterRequestsFilter.find(enterRequest) == enterRequestsFilter.end()) {
+        enterRequests.insert(enterRequest);
+    }
 }
