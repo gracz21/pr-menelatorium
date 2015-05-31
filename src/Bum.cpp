@@ -83,20 +83,18 @@ void Bum::sendEnterRequests() {
     enterRequests.insert(Request(id, time, time));
     myEnterRequest = &(*enterRequests.begin());
 
-    Request enterRequests[worldParameters->m - 1];
+    Request requestsToSend[worldParameters->m - 1];
     int requestsIterator = 0;
 
     printf("Proces: %d, czas: %d - Rozsyłam żądanie wejścia do muzeum\n", id, time);
     for (unsigned int i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
-            time++;
-
-            enterRequests[requestsIterator].processId = id;
-            enterRequests[requestsIterator].timestamp = myEnterRequest->timestamp;
-            enterRequests[requestsIterator].currentTime = time;
+            requestsToSend[requestsIterator].processId = id;
+            requestsToSend[requestsIterator].timestamp = myEnterRequest->timestamp;
+            requestsToSend[requestsIterator].currentTime = ++time;
 
             MPI_Request status;
-            MPI_Isend(&enterRequests[requestsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], ENTER_REQ, MPI_COMM_WORLD, &status);
+            MPI_Isend(&requestsToSend[requestsIterator], 1, MPIRequest::getInstance().getType(), bumsIds[i], ENTER_REQ, MPI_COMM_WORLD, &status);
             MPI_Request_free(&status);
 
             requestsIterator++;
@@ -121,6 +119,10 @@ void Bum::waitForEnterResponses() {
 
         if (!museumLocked && remainingResponses == 0 && (status.MPI_TAG == EXIT_NOTIFICATION || status.MPI_TAG == ENTER_RESP)) {
             canEnter = tryToEnterMuseum();
+        }
+
+        if (museumLocked && remainingResponses == 0) {
+            printf("Proces: %d, czas: %d - muzeum zablokowane\n", id, time);
         }
     }
     printf("Proces: %d, czas: %d - Mogę wejść do muzeum\n", id, time);
@@ -441,6 +443,7 @@ void Bum::saveMuseumAttendanceList(MPI_Status &status) {
     }
     printf("Proces: %d, czas: %d - otrzymałem listę obecności od %d, wchodzę\n", id, time, status.MPI_SOURCE);
     museumAttendanceListUpdated = true;
+    museumLocked = false;
 }
 
 void Bum::saveHelpReq(MPI_Status &status) {
