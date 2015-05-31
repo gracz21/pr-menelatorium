@@ -23,7 +23,7 @@ void MuseumService::startExposition() {
     time = ((time > inRequest.currentTime) ? time : inRequest.currentTime) + 1;
 
     outRequest.currentTime = ++time;
-	MPI_Send(&outRequest, 1, MPIRequest::getInstance().getType(), inRequest.processId, EXPO_START_CONFIRMATION, MPI_COMM_WORLD);
+	MPI_Send(&outRequest, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, EXPO_START_CONFIRMATION, MPI_COMM_WORLD);
 }
 
 void MuseumService::endExposition() {

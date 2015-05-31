@@ -46,6 +46,7 @@ class Bum {
         void waitForEnterResponses();
         bool tryToEnterMuseum();
         void waitForExpositionStart();
+        void sayHelloToMuseumService();
         void sendAttendanceList();
         void waitForLockConfirmations();
         void waitForAttendanceList();
@@ -61,6 +62,7 @@ class Bum {
         void leaveMuseum();
         void notifyAboutExit();
         void waitForOthersToExit();
+        void sayGoodbyeToMuseumService();
         void addToEnterRequestsFilter(Request *enterRequests);
         void removeFromEnterRequests(Request *enterRequests);
 

@@ -167,6 +167,7 @@ void Bum::sendAttendanceList() {
     }
 
     waitForLockConfirmations();
+    sayHelloToMuseumService();
 
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
     for (i = 0; i < worldParameters->s; i++) {
@@ -187,6 +188,15 @@ void Bum::waitForLockConfirmations() {
 
         remainingConfirmations--;
     }
+}
+
+void Bum::sayHelloToMuseumService() {
+    Request notification(-1, -1, ++time);
+
+    MPI_Send(&notification, 1, MPIRequest::getInstance().getType(), 0, EXPO_START, MPI_COMM_WORLD);
+
+    MPI_Recv(&notification, 1, MPIRequest::getInstance().getType(), 0, EXPO_START_CONFIRMATION, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    time = ((time > notification.currentTime) ? time : notification.currentTime) + 1;
 }
 
 void Bum::waitForAttendanceList() {
@@ -331,6 +341,8 @@ void Bum::waitForOthersToExit() {
         canExit = (exitNotifications.size() == (worldParameters->s - 1));
     }
 
+    sayGoodbyeToMuseumService();
+
     printf("Proces: %d, czas: %d - Informuję o opuszczeniu muzeum\n", id, time);
     Request notificationsToSend[worldParameters->s];
     unsigned int i = 0;
@@ -349,6 +361,11 @@ void Bum::waitForOthersToExit() {
     }
     printf("Proces: %d, czas: %d - Poinformowałem resztę o opuszczeniu muzeum\n", id, time);
     museumLocked = false;
+}
+
+void Bum::sayGoodbyeToMuseumService() {
+    Request notification(-1, -1, ++time);
+    MPI_Send(&notification, 1, MPIRequest::getInstance().getType(), 0, SINGLE_EXIT_NOTIFICATION, MPI_COMM_WORLD);
 }
 
 void Bum::addToEnterRequestsFilter(Request *requestsToFiler) {
