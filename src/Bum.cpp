@@ -155,7 +155,7 @@ void Bum::sendAttendanceList() {
         museumAttendanceList[i] = (*it).processId;
         attendanceListLookup.insert((*it).processId);
         attendanceListWrapper[i] = *it;
-        printf("Proces: %d, czas: %d - Element listy %d\n", id, time, (*it).processId);
+        printf("Proces: %d, czas: %d - Element listy %d:%d\n", id, time, (*it).processId, (*it).timestamp);
     }
 
     printf("Proces: %d, czas: %d - Zakładam blokadę na muzeum\n", id, time);
@@ -166,12 +166,26 @@ void Bum::sendAttendanceList() {
         }
     }
 
+    waitForLockConfirmations();
+
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
     for (i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             attendanceListWrapper[worldParameters->s - 1].currentTime = ++time;
             MPI_Send(attendanceListWrapper, worldParameters->s, MPIRequest::getInstance().getType(), museumAttendanceList[i], EXPO_START, MPI_COMM_WORLD);
         }
+    }
+}
+
+void Bum::waitForLockConfirmations() {
+    unsigned int remainingConfirmations = worldParameters->m - worldParameters->s;
+
+    while (remainingConfirmations > 0) {
+        Request confirmation;
+        MPI_Recv(&confirmation, 1, MPIRequest::getInstance().getType(), MPI_ANY_SOURCE, MUSEUM_LOCK, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        time = ((time > confirmation.currentTime) ? time : confirmation.currentTime) + 1;
+
+        remainingConfirmations--;
     }
 }
 
@@ -323,8 +337,10 @@ void Bum::waitForOthersToExit() {
     unsigned int i = 0;
     for (list<Request>::iterator it = exitNotifications.begin(); it != exitNotifications.end(); it++, i++) {
         notificationsToSend[i] = *it;
+        printf("Proces: %d, czas: %d - Element wywalanego procesu %d:%d\n", id, time, (*it).processId, (*it).timestamp);
     }
     notificationsToSend[worldParameters->s - 1] = *myEnterRequest;
+    printf("Proces: %d, czas: %d - Element wywalanego procesu %d:%d\n", id, time, (*myEnterRequest).processId, (*myEnterRequest).timestamp);
     for (i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             notificationsToSend[worldParameters->s - 1].currentTime = ++time;
@@ -481,7 +497,10 @@ void Bum::saveMuseumLock(MPI_Status &status) {
     time = ((time > lock.currentTime) ? time : lock.currentTime) + 1;
 
     museumLocked = true;
-    printf("Proces: %d, czas: %d - Proces %d każe założyć blokadę muzeum\n", id, time, status.MPI_SOURCE);
+
+    lock.currentTime = ++time;
+    MPI_Send(&lock, 1, MPIRequest::getInstance().getType(), status.MPI_SOURCE, status.MPI_TAG, MPI_COMM_WORLD);
+    printf("Proces: %d, czas: %d - Proces %d każe założyć blokadę muzeum, odsyłam potwierdzenie\n", id, time, status.MPI_SOURCE);
 }
 
 void Bum::insertHelpRequest(HelpRequest &helpRequest) {
