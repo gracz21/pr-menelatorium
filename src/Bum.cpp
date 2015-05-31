@@ -204,7 +204,7 @@ void Bum::participateInExposition() {
     printf("Proces: %d, czas: %d - Jestem na ekspozycji\n", id, time);
     time++;
 
-    bool gotDrunk = false && ((rand() % 10) <= 4);
+    bool gotDrunk = ((rand() % 10) <= 4);
 
     if (gotDrunk) {
         printf("Proces: %d, czas: %d - Upiłem się i czekam na pielęgniarzy\n", id, time);
@@ -276,7 +276,6 @@ bool Bum::tryToGetHelp() {
         it++;
     }
 
-    time++;
     return sumOfBumsWeights <= worldParameters->p;
 }
 
