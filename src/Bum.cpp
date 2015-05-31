@@ -148,24 +148,25 @@ void Bum::waitForExpositionStart() {
 
 void Bum::sendAttendanceList() {
     Request attendanceListWrapper[worldParameters->s];
+    set<int> attendanceListLookup;
+
+    unsigned int i = 0;
+    for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
+        museumAttendanceList[i] = (*it).processId;
+        attendanceListLookup.insert(*it).processId;
+        attendanceListWrapper[i] = *it;
+        printf("Proces: %d, czas: %d - Element listy %d\n", id, time, (*it).processId);
+    }
 
     printf("Proces: %d, czas: %d - Zakładam blokadę na muzeum\n", id, time);
-    unsigned int i = 0;
-    for (; i < worldParameters->m; i++) {
-        if (bumsIds[i] != id) {
+    for (i = 0; i < worldParameters->m; i++) {
+        if (attendanceListLookup.find(bumsIds[i]) == attendanceListLookup.end()) {
             Request lock(-1, -1, ++time);
             MPI_Send(&lock, 1, MPIRequest::getInstance().getType(),  bumsIds[i], MUSEUM_LOCK, MPI_COMM_WORLD);
         }
     }
 
     printf("Proces: %d, czas: %d - Wysyłam listę obecności\n", id, time);
-    i = 0;
-    for (set<Request>::iterator it = enterRequests.begin(); i < worldParameters->s; i++, it++) {
-        museumAttendanceList[i] = (*it).processId;
-        attendanceListWrapper[i] = *it;
-        printf("Proces: %d, czas: %d - Element listy %d\n", id, time, (*it).processId);
-    }
-
     for (i = 0; i < worldParameters->s; i++) {
         if (museumAttendanceList[i] != id) {
             attendanceListWrapper[worldParameters->s - 1].currentTime = ++time;
