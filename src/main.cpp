@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
             MuseumService museumService;
             museumService.run();
         } else {
-            Bum bum(rank, 1, &params, bumsIds);
+            Bum bum(rank, randWeight(rank), &params, bumsIds);
             bum.run();
         }
     } else if(rank == 0) { 
