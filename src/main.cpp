@@ -32,9 +32,9 @@ int main(int argc, char** argv) {
         }
     } else if(rank == 0) { 
         if(st == -1) {
-            cout << "Podano za malo parametrow!";
+            cout << "Podano za mało parametrów!";
         } else {
-            cout << "Parametry nie spelniaja zalozen zadania!";
+            cout << "Parametry nie spełniają założen zadania!";
         }
     }
 
