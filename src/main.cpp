@@ -30,6 +30,8 @@ int main(int argc, char** argv) {
             Bum bum(rank, randWeight(rank), &params, bumsIds);
             bum.run();
         }
+
+        delete [] bumsIds;
     } else if(rank == 0) { 
         if(st == -1) {
             cout << "Podano za mało parametrów!";

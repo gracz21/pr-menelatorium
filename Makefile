@@ -13,7 +13,7 @@ obj/HelpRequest.o: src/HelpRequest.cpp src/../inc/HelpRequest.h
 	mpicxx src/HelpRequest.cpp -o $@ -Wall -c
 obj/Init.o: src/Init.cpp src/../inc/Init.h src/../inc/Parameters.h
 	mpicxx src/Init.cpp -o $@ -Wall -c
-obj/main.o: src/main.cpp src/../inc/Request.h src/../inc/Init.h src/../inc/Parameters.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/MuseumService.h
+obj/main.o: src/main.cpp src/../inc/Request.h src/../inc/Init.h src/../inc/Parameters.h src/../inc/Bum.h src/../inc/Request.h src/../inc/HelpRequest.h src/../inc/MuseumService.h src/../inc/MPIRequest.h src/../inc/MPICustomType.h src/../inc/MPIHelpRequest.h
 	mpicxx src/main.cpp -o $@ -Wall -c
 obj/MPICustomType.o: src/MPICustomType.cpp src/../inc/MPICustomType.h
 	mpicxx src/MPICustomType.cpp -o $@ -Wall -c
