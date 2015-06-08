@@ -159,8 +159,6 @@ void Bum::sendAttendanceList() {
         museumAttendanceList[i] = (*it).processId;
         attendanceListLookup.insert((*it).processId);
         attendanceListWrapper[i] = *it;
-        if(worldParameters->report)
-            printf("Proces: %d, czas: %d - Element listy %d:%d\n", id, time, (*it).processId, (*it).timestamp);
     }
 
     if(worldParameters->report)
@@ -358,12 +356,8 @@ void Bum::waitForOthersToExit() {
     unsigned int i = 0;
     for (list<Request>::iterator it = exitNotifications.begin(); it != exitNotifications.end(); it++, i++) {
         notificationsToSend[i] = *it;
-        if(worldParameters->report)
-            printf("Proces: %d, czas: %d - Element wywalanego procesu %d:%d\n", id, time, (*it).processId, (*it).timestamp);
     }
     notificationsToSend[worldParameters->s - 1] = *myEnterRequest;
-    if(worldParameters->report)
-        printf("Proces: %d, czas: %d - Element wywalanego procesu %d:%d\n", id, time, (*myEnterRequest).processId, (*myEnterRequest).timestamp);
     for (i = 0; i < worldParameters->m; i++) {
         if (bumsIds[i] != id) {
             notificationsToSend[worldParameters->s - 1].currentTime = ++time;
