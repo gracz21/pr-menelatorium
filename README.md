@@ -1,5 +1,5 @@
 # Menelatorium
-Project for Distributed Computing subject
+Project on Distributed Computing subject
 
 ## Plot (in Polish):
 " W wyniku przemian społecznych zanikają stare zwyczaje, a nawet całe subkultury. Władze Poznania, w trosce o zachowanie zagrożonych kultur, zdecydowały się urządzić muzeum menela. W muzeum, w specjalnej sali o pojemności S, w charakterze eksponatów zjawiają się menele. Aby ekspozycja mogła się rozpocząć i by można było wpuszczać turystów, w sali musi być jednocześnie S meneli.
